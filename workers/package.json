@@ -1,0 +1,31 @@
+{
+  "name": "euint-workers",
+  "version": "1.0.0",
+  "description": "EU News scraper",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "npx ts-node-dev --respawn --transpile-only ./src/index.ts",
+    "twitterlist": "npx ts-node-dev --respawn --transpile-only ./src/twitterlist.ts",
+    "rss": "npx ts-node-dev --respawn --transpile-only ./src/rss.ts",
+    "localization": "npx ts-node-dev --respawn --transpile-only ./src/localization.ts",
+    "test": "npx tslint -c tslint.json './src/**/*.ts'",
+    "build": "tsc"
+  },
+  "author": "H.C.Graamans",
+  "license": "ISC",
+  "dependencies": {
+    "mysql": "^2.18.1",
+    "rss-parser": "^3.12.0",
+    "twitter": "^1.7.1"
+  },
+  "devDependencies": {
+    "@types/mysql": "^2.15.19",
+    "@types/node": "^16.11.6",
+    "@types/node-fetch": "^3.0.3",
+    "@types/twitter": "^1.7.1",
+    "@types/xml2js": "^0.4.9",
+    "ts-node-dev": "^1.1.8",
+    "tslint": "^6.1.3",
+    "typescript": "^4.4.4"
+  }
+}

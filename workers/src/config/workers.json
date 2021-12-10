@@ -1,0 +1,11 @@
+{
+    "twitterlist":{
+        "timer":180000,
+        "timer_offset":60000
+    },
+    "localization":{
+        "timer":60000,
+        "timer_offset":0,
+        "item_limit":20
+    }
+}
