@@ -1,38 +1,84 @@
+//
+// MODULES
+//
 import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
-import {ws,wss} from "websocket";
 import * as http from 'http'
-import * as https from 'https'
+import * as https from 'https';
+import { Server as ioServer } from 'socket.io';
+import fs from "fs";
 
+// local modules
+import {route as authRoute} from "./routes/auth";
 
+//
+// CONFIG
+// todo: move
 
-const ads = [
-    {title: 'Hello, world (again)!'}
-  ];
+const httpCfg = {
+  ssl: false,
+  port: 8001,
+};
+const httpOptions = {};
+const httpSSLOptions = {
+  key: 'cert/ssl.key',
+  cert: 'cert/ssl.crt'
+};
+let sslCfg:{key?:Buffer,cert?:Buffer} = {};
 
-const app = express();
-const port = 3000;
+//
+// CODE
+//
 
-// Configuring middleware
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+try {
 
-app.use(helmet());
+  // SSL
+  const httpX = (httpCfg.ssl) ? https : http;
+  if(httpCfg.ssl){
+    sslCfg.key = fs.readFileSync(sslCfg.key);
+    sslCfg.cert = fs.readFileSync(sslCfg.cert);
+  }
+  const httpServOptions = (httpCfg.ssl) ? Object.assign(sslCfg,httpOptions) : httpOptions;
 
-app.use(cors());
+  // Initialize Express
+  const app = express();
 
-app.use(morgan('combined'));
+  // Configuring Express middleware
+  app.use(bodyParser.urlencoded({ extended: false }));
+  app.use(bodyParser.json());
+  app.use(helmet());
+  app.use(cors());
+  app.use(morgan('combined'));
 
+  // Local Routing
+  app.use('/auth',authRoute);
 
+  // Create http server with Express
+  const httpServer = httpX.createServer(httpServOptions, app);
 
-app.get('/', (req, res) => {
-    res.send(ads);
+  // Initialize ioServer
+  const io = new ioServer(httpServer);
+
+  // REST Root 
+  app.get('/', (req, res) => {
+    res.status(200).json({dt:(new Date()).getTime()});
   });
-  
-  // starting the server
-  app.listen(port, () => {
-    console.log((new Date()),`listening on port ${port}`);
+
+  // io Events
+  io.on("connection", (socket) => {
+    console.log("socket connected");
   });
+
+  // Initialize server
+  httpServer.listen(httpCfg.port, () => {
+    console.log("server starting on port : " + httpCfg.port)
+  });
+
+} catch(e) {
+
+  console.log(e);
+
+}
