@@ -1,7 +1,22 @@
+declare module 'node:http' {
+  interface IncomingMessage {
+    session: string
+  }
+}
+declare module "socket.io" {
+  interface Socket {
+    decoded: {
+      userId: number;
+    };
+  }
+}
+
 //
 // MODULES
 //
 import express from "express";
+import session from "express-session";
+
 import bodyParser from "body-parser";
 import cors from "cors";
 import helmet from "helmet";
@@ -10,6 +25,8 @@ import * as http from 'http'
 import * as https from 'https';
 import { Server as ioServer } from 'socket.io';
 import fs from "fs";
+import path from "path";
+import sharedsession from "express-socket.io-session";
 
 // local modules
 import {route as authRoute} from "./routes/auth";
@@ -27,13 +44,14 @@ const httpSSLOptions = {
   key: 'cert/ssl.key',
   cert: 'cert/ssl.crt'
 };
-let sslCfg:{key?:Buffer,cert?:Buffer} = {};
 
 //
 // CODE
 //
 
 try {
+  
+  let sslCfg:{key?:Buffer,cert?:Buffer} = {};
 
   // SSL
   const httpX = (httpCfg.ssl) ? https : http;
@@ -43,10 +61,15 @@ try {
   }
   const httpServOptions = (httpCfg.ssl) ? Object.assign(sslCfg,httpOptions) : httpOptions;
 
+  // Session Middleware
+  const sessionMiddleware = session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }});
+
+
   // Initialize Express
   const app = express();
 
   // Configuring Express middleware
+  app.use(sessionMiddleware);
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
   app.use(helmet());
@@ -62,19 +85,26 @@ try {
   // Initialize ioServer
   const io = new ioServer(httpServer);
 
-  // REST Root 
-  app.get('/', (req, res) => {
-    res.status(200).json({dt:(new Date()).getTime()});
-  });
+  io.use(sharedsession(sessionMiddleware, {
+    autoSave:true
+  }));
 
   // io Events
   io.on("connection", (socket) => {
     console.log("socket connected");
   });
 
+  // REST Root 
+  app.get('/', (req, res) => {
+    res.status(200).json({dt:(new Date()).getTime()});
+  });
+
+  // CLIENT Root
+  app.use('/client', express.static(path.join(__dirname, 'client')))
+
   // Initialize server
   httpServer.listen(httpCfg.port, () => {
-    console.log("server starting on port : " + httpCfg.port)
+    console.log("server starting on port : " + httpCfg.port);
   });
 
 } catch(e) {

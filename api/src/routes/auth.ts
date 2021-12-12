@@ -28,6 +28,4 @@ route.post('/logout', (req, res) => {
 
 });
 
-
-
 export {route};
