@@ -57,11 +57,15 @@ try {
     Object.assign(httpOptions,sslCfg);
     httpX = https;
   
-  }
+  } else {
 
+    console.log('[WARNING] NO SSL.')
+
+  }
 
   // Initialize Express
   const app = express();
+  app.set('trust proxy', 1);
 
   // // Session Middleware
   const sessionMiddleware = session(expressSession);
@@ -79,8 +83,16 @@ try {
   // Create http server with Express
   const httpServer = httpX.createServer(httpOptions, app);
 
+  //
   // IO
-  const io = new ioServer(httpServer);
+  //
+
+  const io = new ioServer(httpServer, {
+    cors: {
+      origin: "http://localhost:8080",
+      methods: ["GET", "POST"]
+    }
+  });
 
   io.use(sharedsession(sessionMiddleware, {
     autoSave:true
@@ -90,8 +102,10 @@ try {
     console.log("socket connected");
   });
 
+  //
   // REST
-  
+  //
+
   app.get('/', (req, res) => {
     res.status(200).json({dt:(new Date()).getTime()});
   });
@@ -102,16 +116,19 @@ try {
   // CLIENT Root
   app.use('/client', express.static(path.join(__dirname, 'client')))
 
-
+  //
+  // SERVER
+  //
+  
   // Server Error
   httpServer.on("error", () => {
-    console.log(`Could not start the app on port ${httpServer}`);
+    console.log(`[ERROR] Could not start the app on port ${httpServer}`);
     process.exit();
   });
 
   // Initialize server
   httpServer.listen(httpCfg.port, () => {
-    console.log("server starting on port : " + httpCfg.port);
+    console.log("[INFO] server starting on port : " + httpCfg.port);
   });
 
 } catch(e) {
