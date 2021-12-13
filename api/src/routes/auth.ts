@@ -12,8 +12,9 @@ route.post('/signup', (req, res) => {
 });
 
 route.get('/login', (req, res) => {
+    console.log(req);
     console.log("LOGIN");
-    res.status(200);
+    res.status(200).json({dt:(new Date()).getTime()});
 });
 
 route.post('/delete', (req, res) => {
