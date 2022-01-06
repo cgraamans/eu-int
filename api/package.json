@@ -1,7 +1,7 @@
 {
   "name": "euint-api",
   "version": "1.0.0",
-  "description": "REST API for scraped EU News",
+  "description": "WSS API for scraped EU news using socket.io",
   "main": "src/index.js",
   "scripts": {
     "start": "npx ts-node-dev --respawn --transpile-only ./src/index.ts",
@@ -14,12 +14,9 @@
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.0.1",
-    "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "express-session": "^1.17.2",
-    "express-socket.io-session": "^1.3.5",
-    "helmet": "^4.6.0",
+    "jsonwebtoken": "^8.5.1",
     "morgan": "^1.10.0",
     "mysql": "^2.18.1",
     "socket.io": "^4.4.0"
@@ -28,8 +25,6 @@
     "@types/bcrypt": "^5.0.0",
     "@types/cors": "^2.8.12",
     "@types/express": "^4.17.13",
-    "@types/express-session": "^1.17.4",
-    "@types/express-socket.io-session": "^1.3.6",
     "@types/morgan": "^1.9.3",
     "@types/mysql": "^2.15.19",
     "@types/node": "^16.11.6",
@@ -37,6 +32,6 @@
     "rimraf": "^3.0.2",
     "ts-node-dev": "^1.1.8",
     "tslint": "^6.1.3",
-    "typescript": "^4.4.4"
+    "typescript": "^4.5.2"
   }
 }

@@ -1,41 +1,35 @@
+
 //
 // MODULES
 //
 import express from "express";
-import session from "express-session";
 
-import bodyParser from "body-parser";
 import cors from "cors";
-import helmet from "helmet";
 import morgan from "morgan";
 import * as http from 'http'
 import * as https from 'https';
 import { Server as ioServer } from 'socket.io';
 import fs from "fs";
 import path from "path";
-import sharedsession from "express-socket.io-session";
+
+// Types
+import {EUINT} from "../types";
 
 // local modules
-import {route as authRoute} from "./routes/auth";
+import Session from "./lib/session";
 
 //
 // CONFIG
 // todo: move
 
 const httpCfg = {
-  ssl: true,
+  ssl: false,
   port: 8001,
 };
 const httpOptions = {};
 const httpSSLOptions = {
   cert: '/../cert/server.cert',
   key: '/../cert/server.key'
-};
-const expressSession = { 
-  secret: 'keyboard cat', 
-  cookie: { maxAge: 60000 }, 
-  resave:true, 
-  saveUninitialized:false
 };
 
 //
@@ -66,17 +60,6 @@ try {
   // Initialize Express
   const app = express();
   app.set('trust proxy', 1);
-
-  // // Session Middleware
-  const sessionMiddleware = session(expressSession);
-  
-  // // Configuring Express middleware
-  app.use(sessionMiddleware);
-  app.use(bodyParser.urlencoded({ extended: false }));
-  app.use(bodyParser.json());
-  // app.use(helmet());
-  // todo: Refused to execute inline script because it violates the following Content Security Policy directive: "script-src 'self'". Either the 'unsafe-inline' keyword, a hash ('sha256-3pskxhpwi4/B4xbqPF/wQDYvvsTxVZESPq4tsHM6vNc='), or a nonce ('nonce-...') is required to enable inline execution.
-
   app.use(cors());
   app.use(morgan('combined'));
 
@@ -89,32 +72,45 @@ try {
 
   const io = new ioServer(httpServer, {
     cors: {
-      origin: "http://localhost:8080",
+      origin: "http://pluto:4200",
       methods: ["GET", "POST"]
     }
   });
 
-  io.use(sharedsession(sessionMiddleware, {
-    autoSave:true
-  }));
+  io.on("connection", (socket:EUINT.ExtendedSocket) => {
+ 
+    // generate session
+    socket.session = new Session();
+    
+    socket.on("user:token",(...args)=>{
 
-  io.of("/socket").on("connection", (socket) => {
+      if(args.length !== 1) return;
+      // check for token validity
+
+      console.log(args);
+      
+      //
+      socket.emit("user:login",{ok:true})
+
+    });
+
+    socket.onAny((eventName, ...args)=>{
+
+      console.log(eventName,args);
+
+    });
+    
     console.log("socket connected");
+    console.log("socket session",socket.session);
+
   });
 
   //
   // REST
   //
 
-  app.get('/', (req, res) => {
-    res.status(200).json({dt:(new Date()).getTime()});
-  });
-
-  // Local Routing
-  app.use('/auth',authRoute);
-  
   // CLIENT Root
-  app.use('/client', express.static(path.join(__dirname, 'client')))
+  app.use('/', express.static(path.join(__dirname, 'client')))
 
   //
   // SERVER
