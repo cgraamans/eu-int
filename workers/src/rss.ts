@@ -1,5 +1,5 @@
 import Parser from "rss-parser";
-import DB from "./lib/services/db";
+import {db} from "./lib/services/db";
 
 let parser = new Parser();
 

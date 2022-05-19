@@ -14,14 +14,18 @@
   "author": "H.C.Graamans",
   "license": "ISC",
   "dependencies": {
+    "google-auth-library": "^7.12.0",
+    "googleapis": "^95.0.0",
     "mysql": "^2.18.1",
+    "pg": "^8.7.3",
     "rss-parser": "^3.12.0",
     "twitter": "^1.7.1"
   },
   "devDependencies": {
     "@types/mysql": "^2.15.19",
-    "@types/node": "^16.11.6",
+    "@types/node": "^16.11.36",
     "@types/node-fetch": "^3.0.3",
+    "@types/pg": "^8.6.5",
     "@types/twitter": "^1.7.1",
     "@types/xml2js": "^0.4.9",
     "ts-node-dev": "^1.1.8",

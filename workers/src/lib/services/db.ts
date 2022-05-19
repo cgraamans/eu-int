@@ -1,119 +1,53 @@
-import * as mysql from "mysql";
+import {Pool} from "pg";
 
-export class DB {
+export class DBFactory {
 
-    private static instance:DB;
+    private static instance:DBFactory;
 
-    private Pool:mysql.Pool;
+    private Pool:Pool;
 
     constructor() {
-        
-        this.Pool = mysql.createPool({
-            user:process.env.EUROBOT_DB_USERNAME,
-            password:process.env.EUROBOT_DB_PASSWD,
-            database:process.env.EUROBOT_DB,
-            host:'localhost',
-            multipleStatements: true,
-            charset:'utf8mb4'
+
+        this.Pool = new Pool({
+            database: process.env.EUINT_DATABASE,
+            host: process.env.EUINT_DATABASE_HOST,
+            password: process.env.EUINT_DATABASE_PASSWORD,
+            user: process.env.EUINT_DATABASE_USER
         });
 
-        this.Pool.on('error', (err) => {
+        this.Pool.on('error', (err, client) => {
             console.error('Unexpected error on idle client', err)
             process.exit(-1)
         });
 
     }
 
-    private getPoolConnection() : Promise<mysql.PoolConnection> {
-
-        let that = this;
-        return new Promise(function(resolve,reject) {
-
-            that.Pool.getConnection(function(error:mysql.MysqlError, connection:any) {
-                
-                if(error) {
-                
-                    reject(error);
-                
-                } else {
-                
-                    resolve(connection);
-                
-                }
-            
-            });
-
-        });
-
-    }
-
     static getInstance() {
-        
-        if (!DB.instance) {
-            DB.instance = new DB();
+        if (!DBFactory.instance) {
+            DBFactory.instance = new DBFactory();
+            // ... any one time initialization goes here ...
         }
-        return DB.instance;
+        return DBFactory.instance;
 
     }
 
-    public getConnectionQuery(connection:mysql.PoolConnection,sql:string,vals:any[]):Promise<any>{
+    async q(query:any) {
 
-        return new Promise(function(resolve,reject) {
+        const client = await this.Pool.connect();
 
-            connection.query(sql,vals,(error, results)=>{
+        try {
 
-                if(error) {
-                    
-                    reject(error);
-                
-                } else {
+            const res = await client.query(query);
+            return res;
 
-                    connection.release();
+        } finally {
 
-                    resolve(results);
-                
-                }
-
-            });
-
-        });
-
-    }
-
-    // Execute MySQL query
-	public async q(sql:string,vals?:any[]) {
-
-        if(!vals) vals = [];
-        if(this.Pool) {
-            
-            const connection = await this.getPoolConnection().catch(e=>{throw e});
-
-            return await this.getConnectionQuery(connection,sql,vals);
-
-        } else {
-
-            throw "Pool Errpr";
+            client.release();
 
         }
-
-	}
-
-    public where(arr:Array<string>){
-
-        let rtn = "";
-        
-        for(let i=0;i<arr.length;i++){
-            if (i === 0) {
-                rtn += "WHERE " + arr[i];
-            } else {
-                rtn += " AND " + arr[i];
-            }
-        }
-        
-        return rtn;
-
+    
     }
 
 }
 
-export default DB.getInstance();
+export const db = DBFactory.getInstance();
