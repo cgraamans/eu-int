@@ -5,9 +5,11 @@
   "main": "src/index.js",
   "scripts": {
     "start": "npx ts-node-dev --respawn --transpile-only ./src/index.ts",
-    "twitterlist": "npx ts-node-dev --respawn --transpile-only ./src/twitterlist.ts",
-    "rss": "npx ts-node-dev --respawn --transpile-only ./src/rss.ts",
-    "localization": "npx ts-node-dev --respawn --transpile-only ./src/localization.ts",
+    "db-twitter-list": "npx ts-node-dev --respawn --transpile-only ./src/db-twitter-list.ts",
+    "db-reddit": "npx ts-node-dev --respawn --transpile-only ./src/workers/db-reddit.ts",
+    "social-eunews": "npx ts-node-dev --respawn --transpile-only ./src/workers/social-eunews.ts",
+    "db-rss": "npx ts-node-dev --respawn --transpile-only ./src/db-rss.ts",
+    "db-localization": "npx ts-node-dev --respawn --transpile-only ./src/db-localization.ts",
     "test": "npx tslint -c tslint.json './src/**/*.ts'",
     "build": "tsc"
   },
@@ -19,13 +21,16 @@
     "mysql": "^2.18.1",
     "pg": "^8.7.3",
     "rss-parser": "^3.12.0",
-    "twitter": "^1.7.1"
+    "snoowrap": "^1.23.0",
+    "twitter": "^1.7.1",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/mysql": "^2.15.19",
     "@types/node": "^16.11.36",
     "@types/node-fetch": "^3.0.3",
     "@types/pg": "^8.6.5",
+    "@types/snoowrap": "^1.19.0",
     "@types/twitter": "^1.7.1",
     "@types/xml2js": "^0.4.9",
     "ts-node-dev": "^1.1.8",

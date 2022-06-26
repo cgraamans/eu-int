@@ -1,16 +1,18 @@
-
 //
 // MODULES
 //
 import express from "express";
 
-import cors from "cors";
-import morgan from "morgan";
 import * as http from 'http'
 import * as https from 'https';
-import { Server as ioServer } from 'socket.io';
 import fs from "fs";
 import path from "path";
+
+import cors from "cors";
+import morgan from "morgan";
+import { Server } from 'socket.io';
+
+import {eventBuilder} from './lib/tools';
 
 // Types
 import {EUINT} from "../types";
@@ -24,7 +26,7 @@ import Session from "./lib/session";
 
 const httpCfg = {
   ssl: false,
-  port: 8001,
+  port: 3000,
 };
 const httpOptions = {};
 const httpSSLOptions = {
@@ -60,8 +62,8 @@ try {
   // Initialize Express
   const app = express();
   app.set('trust proxy', 1);
-  app.use(cors());
-  app.use(morgan('combined'));
+  // app.use(cors());
+  // app.use(morgan('combined'));
 
   // Create http server with Express
   const httpServer = httpX.createServer(httpOptions, app);
@@ -70,38 +72,49 @@ try {
   // IO
   //
 
-  const io = new ioServer(httpServer, {
+  const io = new Server(httpServer, {
     cors: {
-      origin: "http://pluto:4200",
+      origin: "http://localhost:4200",
       methods: ["GET", "POST"]
-    }
+    },
   });
 
   io.on("connection", (socket:EUINT.ExtendedSocket) => {
  
+    console.log("CONNECTION");
+
+    socket.join("news:new");
+
     // generate session
     socket.session = new Session();
-    
-    socket.on("user:token",(...args)=>{
 
-      if(args.length !== 1) return;
-      // check for token validity
-
-      console.log(args);
-      
-      //
-      socket.emit("user:login",{ok:true})
-
-    });
+    const socketList = eventBuilder(__dirname + "/events")
+    console.log(socketList);
 
     socket.onAny((eventName, ...args)=>{
 
+      console.log(`ROUTE > ${eventName}`, args);
+
+      const eventPos = socketList.find(x=>x.socket === eventName);
+      if(eventPos)  {
+
+        console.log(`ROUTE >> ${eventName}`, eventPos);
+
+        const event = require(eventPos.file);
+        socket = event.run(socket,eventName,args);
+      
+      }
+
       console.log(eventName,args);
+
+      return;
 
     });
     
     console.log("socket connected");
     console.log("socket session",socket.session);
+
+    return;
 
   });
 

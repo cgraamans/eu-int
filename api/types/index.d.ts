@@ -7,6 +7,8 @@ export namespace EUINT{
     id:number,
     name:string,
     nickname:string,
+    roles:string[],
+    token:string
   }
 
   interface ExtendedSocket extends Socket {

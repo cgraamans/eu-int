@@ -1,26 +1,33 @@
 import { EUINT } from "../../types";
-import DB from "../services/db"
+import {db} from "../services/db"
 
 export default class Session {
 
     public user?:EUINT.User;
-    public messages:any[] = [];
-    public rooms:any[] = [];
 
     constructor(){};
 
-    public async validate(token:string){
+    public async login(token?:string) {
 
-        // check user token and lifetime on db  
-        
-
-    };
-
-    public async login(name:string,password:string) {
+        // insert (new) token into database
+        // user.token gets (new) token
+        // return true;
 
     }
 
-    public async register(name:string,password:string) {
+    public async logout() {
+
+        //  invalidate token
+        //  destroy user object
+        //  return true;
+
+    }
+
+
+    public async tokenRefresh() {
+
+        // insert new token into database
+        // return new token
 
     }
 
