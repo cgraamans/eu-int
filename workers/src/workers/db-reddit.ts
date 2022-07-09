@@ -29,11 +29,17 @@ const RedditList = async (feed:any)=>{
     // Source Insert/Update
     let source_id:number;
 
-    const sources = await db.q({text:`SELECT * FROM item_sources WHERE name = $1`,values:[post.author.name]});
+    const sources = await db.q({text:`SELECT * FROM feed_sources WHERE stub = $1`,values:[post.author.name]});
 
     if(sources.rowCount < 1) {
       
-      const inserted = await db.q({text:`INSERT INTO item_sources (name,feed_id) VALUES($1,$2) RETURNING id`,values:[post.author.name,feed.id]});
+      const inserted = await db.q({text:`INSERT INTO feed_sources (name,stub,feed_id,thumbnail,ref) VALUES($1,$2,$3,$4,$5) RETURNING id`,values:[
+        post.author.name,
+        post.author.name,
+        feed.id,
+        post.author.icon_img,
+        post.author.name
+      ]});
 
       if(inserted && inserted.rowCount > 0) {
         source_id = inserted.rows[0].id
@@ -47,7 +53,7 @@ const RedditList = async (feed:any)=>{
 
     // Check if post exists
     const tweetCallback = await db.q({
-      text:"SELECT * FROM items WHERE source_id = $1 AND text = $2",
+      text:"SELECT * FROM feed_items WHERE source_id = $1 AND text = $2",
       values:[source_id,post.title]
     })
     .catch(e=>{console.log(e)});
@@ -77,7 +83,7 @@ const RedditList = async (feed:any)=>{
 
   console.log(new Date());
 
-  const feeds = await db.q(`SELECT * FROM feeds WHERE type = 're'`).catch(e=>{
+  const feeds = await db.q(`SELECT * FROM feeds WHERE type = 'rdt'`).catch(e=>{
     console.log("DBERROR");
     console.log(e); 
   });

@@ -1,4 +1,4 @@
-import privatekey from "../../config/google/Eurobot-Calendar-1c54f0456b16.json"
+import privatekey from "../../config/google/FG-Calendar.json"
 import {google, calendar_v3} from "googleapis";
 import {calendar as CalendarOptions} from "../../config/google/options.json"
 // import {Eurobot} from "../../types/index";

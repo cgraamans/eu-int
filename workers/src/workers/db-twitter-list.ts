@@ -34,15 +34,16 @@ const TwitterList = async (feed:any)=>{
     // Source Insert/Update
     let source_id:number;
 
-    const sources = await db.q({text:`SELECT * FROM feed_item_sources WHERE name = $1`,values:[tweet.user.screen_name]});
+    const sources = await db.q({text:`SELECT * FROM feed_sources WHERE stub = $1`,values:[tweet.user.screen_name]});
 
     if(sources.rowCount < 1) {
 
-      const inserted = await db.q({text:`INSERT INTO feed_item_sources (name,feed_id,thumbnail,ref) VALUES($1,$2,$3,$4) RETURNING id`,values:[
+      const inserted = await db.q({text:`INSERT INTO feed_sources (name,stub,feed_id,thumbnail,ref) VALUES($1,$2,$3,$4,$5) RETURNING id`,values:[
+        tweet.user.name,
         tweet.user.screen_name,
         feed.id,
         tweet.user.profile_image_url_https,
-        tweet.id_str
+        tweet.user.id_str
       ]});
 
       if(inserted && inserted.rowCount > 0) {
@@ -78,7 +79,7 @@ const TwitterList = async (feed:any)=>{
 
     // Insert tweet
     const itemInsert = await db.q({
-        text:"INSERT INTO feed_items (source_id,feed_id,text,time_created,time_published,ref) VALUES($1,$2,$3,$4,$5) RETURNING id",
+        text:"INSERT INTO feed_items (source_id,feed_id,text,date_created,date_published,ref) VALUES($1,$2,$3,$4,$5,$6) RETURNING id",
         values:[
           source_id,
           feed.id,
@@ -155,7 +156,7 @@ return;
 
   console.log(new Date());
 
-  const feeds = await db.q(`SELECT * FROM feeds WHERE type = 'tl'`).catch(e=>{
+  const feeds = await db.q(`SELECT * FROM feeds WHERE type = 'twl'`).catch(e=>{
     console.log("DBERROR");
     console.log(e); 
   });

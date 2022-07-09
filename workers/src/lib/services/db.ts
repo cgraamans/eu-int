@@ -37,8 +37,7 @@ export class DBFactory {
 
         try {
 
-            const res = await client.query(query);
-            return res;
+            return await client.query(query);
 
         } finally {
 

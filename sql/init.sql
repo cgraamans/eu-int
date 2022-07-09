@@ -17,7 +17,8 @@ DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS user_roles CASCADE;
 DROP TABLE IF EXISTS user_role_link CASCADE;
 DROP TABLE IF EXISTS user_tokens CASCADE;
-
+DROP TABLE IF EXISTS calendars CASCADE;
+DROP TABLE IF EXISTS calendar_items CASCADE;
 
 /* 
 
@@ -60,7 +61,6 @@ CREATE TABLE IF NOT EXISTS feed_sources (
 
 CREATE TABLE IF NOT EXISTS feed_items (
   id SERIAL PRIMARY KEY,
-  uuid TEXT NOT NULL,
   source_id INTEGER REFERENCES feed_sources (id) NOT NULL,
   feed_id INTEGER REFERENCES feeds (id) NOT NULL,
   text TEXT NOT NULL,
@@ -113,7 +113,7 @@ insert into user_role_link (user_id,role_id) VALUES(1,1);
 CREATE TABLE IF NOT EXISTS user_tokens (
   user_id INTEGER REFERENCES users (id) NOT NULL,
   date_created BIGINT NOT NULL,
-  date_expire BIGINT NOT NULL,
+  date_expired BIGINT NOT NULL,
   token VARCHAR(128),
   is_api BOOLEAN NOT NULL
 );
@@ -131,7 +131,7 @@ insert into blogs (user_id,stub,name) VALUES(1,'test-blog','Test Blog');
 
 CREATE TABLE IF NOT EXISTS blog_items (
   id SERIAL PRIMARY KEY,
-  uuid TEXT UNIQUE NOT NULL,
+  stub TEXT UNIQUE NOT NULL,
   user_id INTEGER REFERENCES users (id) NOT NULL,
   blog_id INTEGER REFERENCES blogs (id) NOT NULL,
   date_created BIGINT NOT NULL,
@@ -140,8 +140,8 @@ CREATE TABLE IF NOT EXISTS blog_items (
   text TEXT NOT NULL
 );
 
-insert into blog_items (uuid,user_id,blog_id, date_created,date_updated,text,title) VALUES(
-  '0-0-0-0',
+insert into blog_items (stub,user_id,blog_id, date_created,date_updated,text,title) VALUES(
+  'eurem-ipsum',
   1,
   1,
   extract(epoch from now()),
@@ -150,7 +150,28 @@ insert into blog_items (uuid,user_id,blog_id, date_created,date_updated,text,tit
   'EUREM IPSUM'
 );
 
+CREATE TABLE IF NOT EXISTS calendars (
+  id SERIAL PRIMARY KEY,
+  stub TEXT UNIQUE NOT NULL,
+  name TEXT NOT NULL
+);
 
+insert into calendars (stub,name) VALUES(
+  'main',
+  'Forum Gotterfunken Main Calendar'
+ );
+
+CREATE TABLE IF NOT EXISTS calendar_items (
+  id SERIAL PRIMARY KEY,
+  calendar_id INTEGER REFERENCES calendars (id) NOT NULL,
+  google_id VARCHAR(128) NOT NULL,
+  summary TEXT NOT NULL,
+  description TEXT,
+  creator TEXT NOT NULL,
+  date_start  TEXT NOT NULL,
+  date_end  TEXT NOT NULL,
+  is_event BOOLEAN NOT NULL
+);
 
 /*
 

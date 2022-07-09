@@ -74,7 +74,7 @@ try {
 
   const io = new Server(httpServer, {
     cors: {
-      origin: "http://localhost:4200",
+      origin: "http://localhost:4200", // todo: try *
       methods: ["GET", "POST"]
     },
   });
@@ -88,7 +88,7 @@ try {
     // generate session
     socket.session = new Session();
 
-    const socketList = eventBuilder(__dirname + "/events")
+    const socketList = eventBuilder(__dirname + "/sockets")
     console.log(socketList);
 
     socket.onAny((eventName, ...args)=>{
