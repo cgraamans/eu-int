@@ -1,0 +1,42 @@
+{
+  "name": "eurobot",
+  "version": "2.0.0",
+  "description": "eurobot using discord.js v13",
+  "main": "eurobot.js",
+  "scripts": {
+    "start": "npx ts-node-dev --respawn --transpile-only eurobot.ts >> eurobot.log",
+    "test": "npx tslint -c tslint.json '**/**/*.ts'",
+    "build": "tsc"
+  },
+  "author": "C.Graamans",
+  "license": "EUPL-1.1",
+  "devDependencies": {
+    "@types/command-line-args": "^5.2.0",
+    "@types/mysql": "^2.15.19",
+    "@types/node": "^12.20.20",
+    "@types/node-fetch": "^3.0.3",
+    "@types/node-schedule": "^1.3.2",
+    "@types/request": "^2.48.7",
+    "@types/twitter": "^1.7.1",
+    "@types/ws": "^7.4.7",
+    "ts-node-dev": "^1.1.8",
+    "tslint": "^5.20.1",
+    "typescript": "^4.3.5",
+    "@types/express-serve-static-core": "^4.17.21"
+  },
+  "dependencies": {
+    "@discordjs/builders": "^0.6.0",
+    "@discordjs/rest": "^0.1.0-canary.0",
+    "command-line-args": "^5.2.0",
+    "discord-api-types": "^0.22.0",
+    "discord.js": "^13.1.0",
+    "file-type": "^16.5.3",
+    "googleapis": "^67.1.1",
+    "mysql": "^2.18.1",
+    "node-fetch": "^3.0.0",
+    "node-schedule": "^2.0.0",
+    "roll": "^1.3.1",
+    "snoowrap": "^1.23.0",
+    "twitter": "^1.7.1"
+  }
+}
