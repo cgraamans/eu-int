@@ -137,17 +137,19 @@ CREATE TABLE IF NOT EXISTS blog_items (
   date_created BIGINT NOT NULL,
   date_updated BIGINT NOT NULL,
   title TEXT NOT NULL,
-  text TEXT NOT NULL
+  text TEXT NOT NULL,
+  text_short TEXT NULL
 );
 
-insert into blog_items (stub,user_id,blog_id, date_created,date_updated,text,title) VALUES(
+insert into blog_items (stub,user_id,blog_id, date_created,date_updated,text,title,text_short) VALUES(
   'eurem-ipsum',
   1,
   1,
   extract(epoch from now()),
   extract(epoch from now()),
-  '# DOLOR SIT AMET',
-  'EUREM IPSUM'
+  '# DOLOR SIT AMET\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris aliquam mauris orci, non tempor ante dignissim sit amet. Pellentesque pharetra, nibh sed sodales venenatis, nulla felis egestas metus, non tincidunt magna odio vitae nibh. Suspendisse dignissim accumsan felis ac pulvinar. Mauris purus orci, ultricies in ex id, luctus aliquet dolor. Nullam vel ex fringilla, vestibulum sapien vel, accumsan augue. Praesent vitae lorem vel leo ullamcorper aliquet vitae in nunc. Pellentesque et tortor ex. Phasellus eleifend efficitur nisl at euismod. Maecenas et dictum eros. Proin porta, felis sed viverra commodo, tortor nisi mollis odio, egestas eleifend velit velit quis nisi. Nunc vestibulum ante vitae tempor pulvinar. Proin rhoncus lobortis odio, vitae aliquet felis. Aliquam non felis a urna dapibus lobortis.',
+  'EUREM IPSUM',
+  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris aliquam mauris orci, non tempor ante dignissim sit amet.'
 );
 
 CREATE TABLE IF NOT EXISTS calendars (
@@ -176,8 +178,6 @@ CREATE TABLE IF NOT EXISTS calendar_items (
 /*
 
 TODO:
-
--- insert into users (name,nick,password) VALUES('API_DISCORD','xyz');
 
 data_countries
 data_cities
