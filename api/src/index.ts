@@ -93,15 +93,13 @@ try {
 
     socket.onAny((eventName, ...args)=>{
 
-      console.log(`ROUTE > ${eventName}`, args);
-
       const eventPos = socketList.find(x=>x.socket === eventName);
       if(eventPos)  {
-
-        console.log(`ROUTE >> ${eventName}`, eventPos);
+        
+        console.log(`ROUTE > ${eventName}`, args);
 
         const event = require(eventPos.file);
-        socket = event.run(socket,eventName,args);
+        event.run(socket,eventName,args[0]);
       
       }
 
