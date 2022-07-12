@@ -1,0 +1,60 @@
+.card-top {
+
+    display: block;
+    width:100%;
+    // border:1px solid rgb(95, 81, 81);
+    margin:10px 10px;
+    padding:10px;
+    border-radius: 5px;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+
+    .item-summary {
+
+        font-family: LCG;
+        display: inline-block;
+        margin-left:76px;
+        width:calc( 100% - 42px )
+
+    }
+    
+    .item-summary::before {
+    
+        content:'';
+        position: absolute;
+        width:64px;
+        height:64px;
+        background: url('/assets/logos/top.png');
+        background-size: contain;
+        left:30px;
+        margin-top:5px;
+
+    }
+    
+    p {
+
+        margin-left:77px;
+
+    }
+
+}
+
+.card-deck {
+
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+
+}
+
+.card {
+    
+    min-width: 140px;
+    
+    .card-img-top {
+        max-height:75px;
+        max-width: 75px;
+    }
+
+
+}
+
