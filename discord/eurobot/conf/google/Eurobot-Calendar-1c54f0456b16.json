@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "eurobot-calendar",
+  "private_key_id": "1c54f0456b1694af43141b093f72568d6be98f20",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCmJhy+6CeanRvu\n0IlidlCE7/s/yULt2jKRjYmSWDj0TJeD3n0+HbizaWbFd9OREu+OOZoCmZq5/d9C\nUG/MEZMOaMLPwfxt+X+B5yUSNrevr6Ky6rl5FSokUK8SwothM5rUsCg1kUNve1O8\nYzuiNpIDMIJOpHCvocfcn7GHkm722L56zpswX7Fr14+MEj/zEqaunz8vrdWmCKMk\nwdNR3SLwr6joLYFCRME2FcITsPyIdKdhT3BZoWdi4cl6PVUCnAd4ivW3sDxBsZ/p\ntR/qMQTNppjRXfgVf+qA4UqLELHyzkEgAoFI7WbkPiayWvYULWDOltkkK37PF2Gg\nqNTOIOoxAgMBAAECggEATKTYLdi6LEC9WfUo6xrZGfn6VPpqvX4iRbKc+71myIts\neZBxBe5//YNpvT4BgrLRfzJjMT/aeGH8U4L3j5Or2sHI3D4ITFMD1tDh8Pz8zzae\nPxq4ZHq27fmqSWUlFrnPer2oTs2r5glmH0lHgRTbVk1STyTcNqjSoZupMXkDZyrm\nBsZ0CSzMZ7My9B6DmFO8GMB6+uknWCpFfRwD3AlHvw8k1lfZ+FQD9Dek3wIn2R7d\nkv/cakF8gloeVZIAfPoBOzeRx/BVUTlrMVxyOOfk4Yx6bJYPFNUN5c/dKWHCteBO\ngqY0CVWIXcExBxVJ4V+Sr4QJ+Hs7mZYapzgcm61m4QKBgQDf+qt8hUV4uXchin+N\nkaTiBukx1Z6quSs/lBY9VpjGp8ra94suNZt1XCjJUAQ7rtE0S8iewqkvqj9hW61H\nt/zEfztLtzmMA4BcpP5jEm9CftD8Fb/FlRhrsNs16Bi7qAw/H6YhmBuY/xw9hLQU\no15dsXG4UQsQYI5zp/Z10Z+/MwKBgQC95u7MboiG+Ce03vGsszMzcb/GiCg2ojLV\nG3ZmSkeDKo3s2hqQsaHO7n0v2cRnvZqWF2Cd4lE9/SJMnlKgKqBcVUySxSu4bTd1\nK9rzII/8n00lBbl3cHMfvsSvAwl5CecGpo/NPBXfEunUg7MQ8I8qAYRLVDNMC52w\n0oi+m2mBCwKBgGI1R3wR86Q7rkDGuacZdXKmFRoE0M2K46u9AwNiNRrl98yLPjvE\nxaVwA3JB45lHzfNgR1dVg1mjDKdjy1bnFa4TG6zXaiQ6ZM46ilBmhOJjOL9PygaY\nmVye739zhWTDCpujBPU1/OPY+EkBJvTlrTrn0zU+U9uaetu7ihWfFKyBAoGBAI3X\nivBJc1KU0lun1o3vP8QiJ2Mr2hWMqzlADPy0aJvRUjbiZctD0p9UxU7Tcn8mQOvw\nxCrJm3MYuuDNtNuLW0H8OHi8Kz7S3QR44E6PON0xQ5buoqxS4rqIbDJoq0+sFNKD\n4I8kXRXE88DXKg3yEI0Imv8FAle/qWYkqxzryi8nAoGBAKfWv2gPDM+9iSbaC/ol\noplexJd1D4n1rPPT7ulFKHLTLyfuC3MrsHPipPLY9p5IUg1EtJRCHx48ZJMacC2J\nMbGat8SzzFu9UN8w9LUAKXpGVsLJ5qKzzLFM5zRGHqzB/9nvX9Lh5GOYEDGTRwv/\n+zTf6ksLli0ZygKOHnicJ5k5\n-----END PRIVATE KEY-----\n",
+  "client_email": "eurobot-calendar@eurobot-calendar.iam.gserviceaccount.com",
+  "client_id": "101009881752670247616",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/eurobot-calendar%40eurobot-calendar.iam.gserviceaccount.com"
+}

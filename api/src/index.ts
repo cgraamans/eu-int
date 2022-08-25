@@ -1,145 +1,27 @@
-//
-// MODULES
-//
-import express from "express";
+import "reflect-metadata";
+import { AppDataSource } from "./data-source";
+import * as express from "express";
+import * as bodyParser from "body-parser";
+import helmet from "helmet";
+import * as cors from "cors";
+import routes from "./routes";
 
-import * as http from 'http'
-import * as https from 'https';
-import fs from "fs";
-import path from "path";
+//Connects to the Database -> then starts the express
+AppDataSource.initialize()
+  .then(async connection => {
+    // Create a new express application instance
+    const app = express();
 
-import cors from "cors";
-import morgan from "morgan";
-import { Server } from 'socket.io';
+    // Call midlewares
+    app.use(cors());
+    app.use(helmet());
+    app.use(bodyParser.json());
 
-import {eventBuilder} from './lib/tools';
+    //Set all routes from routes folder
+    app.use("/", routes);
 
-// Types
-import {EUINT} from "../types";
-
-// local modules
-import Session from "./lib/session";
-
-//
-// CONFIG
-// todo: move
-
-const httpCfg = {
-  ssl: false,
-  port: 3000,
-};
-const httpOptions = {};
-const httpSSLOptions = {
-  cert: '/../cert/server.cert',
-  key: '/../cert/server.key'
-};
-
-//
-// CODE
-//
-
-try {
-
-  // initial server
-  let httpX:any = http;
-
-  // SSL
-  let sslCfg:{cert?:Buffer,key?:Buffer} = {};
-
-  if(httpCfg.ssl){
-
-    sslCfg.cert = fs.readFileSync(__dirname+httpSSLOptions.cert);
-    sslCfg.key = fs.readFileSync(__dirname+httpSSLOptions.key);
-    Object.assign(httpOptions,sslCfg);
-    httpX = https;
-  
-  } else {
-
-    console.log('[WARNING] NO SSL.')
-
-  }
-
-  // Initialize Express
-  const app = express();
-  app.set('trust proxy', 1);
-  // app.use(cors());
-  // app.use(morgan('combined'));
-
-  // Create http server with Express
-  const httpServer = httpX.createServer(httpOptions, app);
-
-  //
-  // IO
-  //
-
-  const io = new Server(httpServer, {
-    cors: {
-      origin: "http://localhost:4200", // todo: try *
-      methods: ["GET", "POST"]
-    },
-  });
-
-  io.on("connection", (socket:EUINT.ExtendedSocket) => {
- 
-    console.log("CONNECTION");
-
-    socket.join("news:new");
-
-    // generate session
-    socket.session = new Session();
-
-    const socketList = eventBuilder(__dirname + "/sockets")
-    console.log(socketList);
-
-    socket.onAny((eventName, ...args)=>{
-
-      const eventPos = socketList.find(x=>x.socket === eventName);
-      if(eventPos)  {
-        
-        console.log(`ROUTE > ${eventName}`, args);
-
-        const event = require(eventPos.file);
-        event.run(socket,eventName,args[0]);
-      
-      }
-
-      console.log(eventName,args);
-
-      return;
-
+    app.listen(3000, () => {
+      console.log("Server started on port 3000!");
     });
-    
-    console.log("socket connected");
-    console.log("socket session",socket.session);
-
-    return;
-
-  });
-
-  //
-  // REST
-  //
-
-  // CLIENT Root
-  app.use('/', express.static(path.join(__dirname, 'client')))
-
-  //
-  // SERVER
-  //
-  
-  // Server Error
-  httpServer.on("error", () => {
-    console.log(`[ERROR] Could not start the app on port ${httpServer}`);
-    process.exit();
-  });
-
-  // Initialize server
-  httpServer.listen(httpCfg.port, () => {
-    console.log("[INFO] server starting on port : " + httpCfg.port);
-  });
-
-} catch(e) {
-
-  console.log(e);
-
-}
+  })
+  .catch(error => console.log(error));

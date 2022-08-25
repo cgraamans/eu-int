@@ -1,0 +1,36 @@
+h2 {
+    font-family: LGC;
+}
+
+.form-group {
+
+    margin-bottom:10px;
+    min-height: 360px;
+    margin:10px 10px;
+    margin-left:0px;
+    padding:10px;
+    border-radius: 5px;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    
+    label.center-block {
+
+        display: block;
+        margin: 0;
+        margin-bottom: 10px;
+        input {max-width: 240px;}
+
+        span {
+            display: block;  
+        }
+        input.form-control {
+            display:inline-block;
+        }
+        .validation {
+            margin-left: 10px;
+            color:red;
+            display: inline-block;
+        }    
+
+    }
+
+}

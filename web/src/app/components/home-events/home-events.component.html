@@ -1,0 +1,26 @@
+
+<div class="card-top">
+
+    <h2 class="item-summary">{{mock[0].summary}}</h2>
+    <p class="item-description">{{mock[0].description}}</p>
+    <p class="item-link">>> {{mock[0].link}}</p>
+
+</div>  
+<div class="cards card-deck">
+
+        <div *ngFor="let item of mock; let i = index" [attr.data-index]="i">
+
+        <div class="card" style="width: 15vw" *ngIf="i !== 0">
+            <img class="card-img-top" src="/assets/logos/top.png" alt="Card image cap">
+            <div class="card-body">
+                <h5 class="card-title">{{item.summary}}</h5>
+                <!-- <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6> -->
+                <p class="card-text">{{item.description}}</p>
+                <a href="#" class="card-link">{{item.link}}</a>
+            </div>
+    
+        </div>
+    
+    </div>
+
+</div>

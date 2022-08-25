@@ -113,6 +113,9 @@ class Discord {
             Users:(await DB.q("SELECT * FROM discord_conf_role_users").catch(e=>{throw e}))
         };
 
+        console.log(this.Config)
+        console.log(this.Config.Roles)
+
         return;
 
     }
