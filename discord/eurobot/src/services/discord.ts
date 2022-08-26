@@ -130,7 +130,8 @@ class Discord {
     public async authorizeReaction(reaction:MessageReaction,roles:string[]) {
 
         let userRoles:Eurobot.Roles.User[] = [];
-        let userRoleList:Role[] = [];
+        let userRoleReturn:Role[] = [];
+        let member = reaction.message.guild.members.cache.get(reaction.client.user.id);
 
         userRoles = this.isConfigRoleLoop(roles);
 
@@ -139,14 +140,12 @@ class Discord {
 
         userRoles.forEach(userRole=>{
 
-            const RoleGuild = reaction.message.guild.roles.cache.find(guildRole=>guildRole.id === userRole.role_id);
-            if(RoleGuild) {
+            if(member) {
 
-                const guild = reaction.client.guilds.cache.find(guild=>guild.id === reaction.message.guild.id);
-                if(guild) {
+                const getRole = member.roles.cache.get(userRole.role_id);
+                if(getRole) {
 
-                    const role = guild.roles.cache.get(userRole.role_id);
-                    if(role) userRoleList.push(role);
+                    userRoleReturn.push(getRole);
 
                 }
 
@@ -154,7 +153,7 @@ class Discord {
 
         });
 
-        return userRoleList;  
+        return userRoleReturn;  
 
     }
 

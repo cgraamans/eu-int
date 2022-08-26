@@ -4,8 +4,8 @@ import {Eurobot} from "../../types"
 import { CommandInteraction, EmbedBuilder } from "discord.js";
 
 const data = new SlashCommandBuilder()
-	.setName('xp')
-	.setDescription('Retrieves your xp from Forum Gotterfunken');
+	.setName('rank')
+	.setDescription('Retrieves your rank from Forum Gotterfunken');
 
 module.exports = {
 
@@ -19,16 +19,11 @@ module.exports = {
 		const ModelXP = new xp();
 
 		// const rank = await ModelXP.getRanking(interaction.user.id)
-		const getTotal = await ModelXP.getTotal(interaction.user.id);
-
-		let TOTAL = 0;
-		if(getTotal && getTotal.length > 0 && getTotal[0].xp) {
-			TOTAL = getTotal[0].xp;
-		}
+		const getRank = await ModelXP.getRankList(10);
 
 		let embed = new EmbedBuilder();
-		embed.setTitle(`${interaction.user.username}`);
-		embed.setDescription(`TOTAL XP: **${TOTAL}**`)
+		embed.setTitle(`FG Top 10 for this month`);
+		embed.setDescription(`TOTAL XP: **0**`)
 
 		await interaction.reply({embeds:[embed],ephemeral:true});
 

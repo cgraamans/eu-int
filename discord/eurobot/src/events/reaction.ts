@@ -1,10 +1,10 @@
-import {MessageReaction, TextChannel} from "discord.js";
+import {MessageReaction, TextChannel, User} from "discord.js";
 import discord from "../services/discord";
 import xp from "../models/xp";
 
 module.exports = {
 	name: 'messageReactionAdd',
-	async execute(reaction:MessageReaction) {
+	async execute(reaction:MessageReaction, user:User) {
 
 		const xpEmojis = ["loveEU","❤️","👍","marks","okrutte","EUpepesalute","UA_Pepe","eupog"];
 
@@ -14,10 +14,12 @@ module.exports = {
 		if(xpEmojis.includes(reaction.emoji.name)) {
 
 			if(!message.channel) return;
-			if(!message.channel.isTextBased) return;
+			let channel = message.guild.channels.cache.get(message.channel.id);
 
-			if(message.guildId !== "257838262943481857") return;
-			if(message.channel.id === "609511947762925597") return;
+			if(!channel.isTextBased) return;
+
+			if(message.guild.id !== "257838262943481857") return;
+			if(channel.id === "609511947762925597") return;
 			
 			const articles = message.guild.channels.cache.find(g=>g.id === "609511947762925597") as TextChannel;
 			if(!articles) return;
@@ -27,12 +29,12 @@ module.exports = {
 
 			// AUTH LOGIC
 			const authorized = await discord.authorizeReaction(reaction,["Admin","Mod","Twitter","FGN"]);
-			if(authorized && authorized.length > 1) {
+			if(authorized.length > 0) {
 
 				// COPY TO ARTICLES
 				const articleMessages = await articles.messages.fetch({limit:100});
 				const ArticleMessage = articleMessages.find(aM=>aM.content === message.content);
-				if(!ArticleMessage) await articles.send(`${message.author} => ${message.channel}\n${message.content}`);
+				if(!ArticleMessage) await articles.send(`\@${message.author.username} (\#${channel.name})\n${message.content}`);
 
 				// SET XP
 				await ModelXP.set(message,reaction.message.author.id,3)
@@ -54,6 +56,8 @@ module.exports = {
 					console.log(e);
 				});
 
+			console.log(`Adding 1 XP to ${reaction.client.user.username}`)
+
 			const numXP = await ModelXP.getByMessage(message.id)
 				.catch(e=>{console.log(e)});
 
@@ -61,13 +65,14 @@ module.exports = {
 
 				const articleMessages = await articles.messages.fetch({limit:100});
 				const ArticleMessage = articleMessages.find(aM=>aM.content === message.content);
-				if(!ArticleMessage) await articles.send(`${message.author} => ${message.channel}\n${message.content}`);
+				if(!ArticleMessage) await articles.send(`\@${message.author.username} (\#${channel.name})\n${message.content}`);
 
 			}
 
+			return;
+
 		}
 
-		// console.log(reaction);
 		return;
 
 	},

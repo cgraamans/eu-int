@@ -15,14 +15,13 @@ export default class xp {
 
     public async getTotal(userId:string) {
 
-        return await db.q("SELECT COUNT(xp) as xp from discord_log_xp GROUP BY user_id = ?",[userId]);
+        return await db.q("SELECT SUM(xp) as xp from discord_log_xp WHERE user_id = ?",[userId]);
 
     }
 
     // public async getRanking(limit:number=10,timespan:string="m") {
 
-    //     let timeStart:number = (new Date()).getTime() - (60*60*24*31*1000);
-    //     let timeEnd:number = (new Date()).getTime();
+        // let timeEnd:number = (new Date()).getTime();
 
     //     if(timespan === "w") {
 
@@ -40,6 +39,32 @@ export default class xp {
 
     // }
 
+    public async getRankList(limit:number=10) {
+
+        let timeStart:number = (new Date()).getTime() - (60*60*24*31*1000);
+
+        return await db.q(`
+                select 
+                    @rownum:=@rownum+1 as rank,
+                    total,
+                    user_id
+                from 
+                    (
+                        select 
+                            sum(xp) as total,
+                            user_id
+                        from discord_log_xp
+                        where dt > ?
+                        group by user_id
+                        order by total desc
+                    )T,(select @rownum:=0)a
+            `,
+            [
+                timeStart
+            ]
+        );
+
+    }
 
     public async set(message:Discord.Message,userId:string,xp:number=1) {
 
