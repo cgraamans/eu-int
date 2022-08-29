@@ -1,7 +1,5 @@
 import db from "../services/db";
 import Discord from "discord.js";
-import reddit from "../services/reddit";
-import {Eurobot} from "../../types/index.d"
 
 export default class xp {
 
@@ -19,48 +17,48 @@ export default class xp {
 
     }
 
-    // public async getRanking(limit:number=10,timespan:string="m") {
-
-        // let timeEnd:number = (new Date()).getTime();
-
-    //     if(timespan === "w") {
-
-    //         timeStart = (new Date()).getTime() - (60*60*24*7*1000);
-
-    //     }
-
-    //     if(timespan === "d") {
-
-    //         timeStart = (new Date()).getTime() - (60*60*24*1000);
-
-    //     }
-
-    //     const results = await db.q("SELECT ",[])
-
-    // }
-
-    public async getRankList(limit:number=10) {
+    public async getRankList(limit:number=10,timespan:string="m") {
 
         let timeStart:number = (new Date()).getTime() - (60*60*24*31*1000);
 
+        if(timespan === "w") {
+
+            timeStart = (new Date()).getTime() - (60*60*24*7*1000);
+
+        }
+
+        if(timespan === "d") {
+
+            timeStart = (new Date()).getTime() - (60*60*24*1000);
+
+        }
+
+        console.log("timeStart",timeStart);
+
         return await db.q(`
-                select 
-                    @rownum:=@rownum+1 as rank,
-                    total,
-                    user_id
-                from 
-                    (
-                        select 
-                            sum(xp) as total,
-                            user_id
-                        from discord_log_xp
-                        where dt > ?
-                        group by user_id
-                        order by total desc
-                    )T,(select @rownum:=0)a
+
+            select 
+                @rownum:=@rownum+1 as rank,
+                xp,
+                user_id
+            from 
+                (
+
+                    select 
+                        sum(xp) as xp,
+                        user_id
+                    from discord_log_xp
+                    where dt > ?
+                    group by user_id
+                    order by xp desc
+                    LIMIT ?
+
+                )T,
+                (select @rownum:=0)a
             `,
             [
-                timeStart
+                new Date(timeStart).toISOString().slice(0, 19).replace('T', ' '),
+                limit
             ]
         );
 

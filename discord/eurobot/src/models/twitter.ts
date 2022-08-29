@@ -75,7 +75,7 @@ export default class TwitterModel {
             }
         });
 
-        let cleanText = textElements.join(" ");
+        let cleanText = textArr.join(" ");
         if(cleanText.length + (textLinks * 23) > 280) {
         
             cleanText = cleanText.slice(0,(280 - (textLinks * 23) - 3)) + "...";
@@ -84,33 +84,33 @@ export default class TwitterModel {
         
 
         // images [WIP]
-        // if(message.attachments) {
+        if(message.attachments) {
 
-        //     let urls:string[] = [];
+            let urls:string[] = [];
 
-        //     message.attachments.forEach(attachment=>{
-        //         urls.push(attachment.url);
-        //     });
+            message.attachments.forEach(attachment=>{
+                urls.push(attachment.url);
+            });
 
-        //     await Tools.asyncForEach(urls,async (url:string)=>{
+            await Tools.asyncForEach(urls,async (url:string)=>{
 
-        //         const file = await this.getFile(url)
-        //                         .catch(e=>{console.log(e)});
+                const file = await this.getFile(url)
+                                .catch(e=>{console.log(e)});
 
-        //         if(file) {
+                if(file) {
 
-        //             const type = FileType.fromBuffer(file).toString();
-        //             media.push({size:Buffer.byteLength(file).toString(),type:type,data:file});
+                    const type = FileType.fromBuffer(file).toString();
+                    media.push({size:Buffer.byteLength(file).toString(),type:type,data:file});
 
-        //         }
+                }
 
-        //         return;
+                return;
 
-        //     });
+            });
 
-        //     if(message.content.length < 1 && media.length < 1) return;
+            if(message.content.length < 1 && media.length < 1) return;
 
-        // }
+        }
 
         const post = await Twitter.post(cleanText,media);
 

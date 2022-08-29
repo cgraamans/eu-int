@@ -118,6 +118,18 @@ export namespace Eurobot {
 
     }
 
+    export namespace Rank {
+
+        export interface Row {
+
+            rank:number,
+            xp:number,
+            user_id:string
+
+        }
+
+    }
+
     // OLD MODELS FOR REFERENCE
     export namespace Models {
 

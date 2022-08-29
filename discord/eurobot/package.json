@@ -1,13 +1,12 @@
 {
   "name": "eurobot",
-  "version": "2.0.0",
-  "description": "eurobot using discord.js v13",
+  "version": "14.2.2",
+  "description": "eurobot using discord.js v14",
   "main": "eurobot.js",
   "scripts": {
-    "start": "npx ts-node-dev --respawn --transpile-only eurobot.ts >> eurobot.log",
+    "start": "npx ts-node-dev --respawn --transpile-only eurobot.ts",
     "test": "npx tslint -c tslint.json '**/**/*.ts'",
-    "build": "tsc",
-    "run": "npx ts-node-dev --respawn --transpile-only --trace-warnings eurobot.ts"
+    "build": "tsc"
   },
   "author": "C.Graamans",
   "license": "EUPL-1.1",

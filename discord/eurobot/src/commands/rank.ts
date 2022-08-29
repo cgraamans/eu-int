@@ -18,12 +18,23 @@ module.exports = {
 
 		const ModelXP = new xp();
 
-		// const rank = await ModelXP.getRanking(interaction.user.id)
-		const getRank = await ModelXP.getRankList(10);
+		const getRankList:Eurobot.Rank.Row[] = await ModelXP.getRankList(10);
+		if(getRankList.length < 1) return;
 
 		let embed = new EmbedBuilder();
 		embed.setTitle(`FG Top 10 for this month`);
-		embed.setDescription(`TOTAL XP: **0**`)
+
+		let rankList:string = "";
+		getRankList.forEach(row=>{
+
+			let rankName = "[deleted]";
+			const rankUser = interaction.guild.members.cache.get(row.user_id);
+			if(rankUser) rankName = rankUser.user.username;
+
+			rankList += `**${row.rank}** - **@${rankName}** (${row.xp} XP)\n`
+		});
+
+		embed.setDescription(`RANKINGS\n${rankList}`)
 
 		await interaction.reply({embeds:[embed],ephemeral:true});
 

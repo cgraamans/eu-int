@@ -1,6 +1,6 @@
 import DB from "./db";
 import {Eurobot} from "../../types/index";
-import {IntentsBitField , Message, User, Client, Guild, Role, MessageReaction} from "discord.js";
+import {IntentsBitField , Message, User, Client, Guild, GuildMember, Role, MessageReaction} from "discord.js";
 import * as fs from "fs";
 import * as Conf from "../../conf/discord.json";
 
@@ -127,11 +127,12 @@ class Discord {
     }
 
     // is a user authorized for an action?
-    public async authorizeReaction(reaction:MessageReaction,roles:string[]) {
+    public async authorizeMember(member:GuildMember,roles:string[]) {
 
         let userRoles:Eurobot.Roles.User[] = [];
         let userRoleReturn:Role[] = [];
-        let member = reaction.message.guild.members.cache.get(reaction.client.user.id);
+
+        console.log("REACTION UID",member.id);
 
         userRoles = this.isConfigRoleLoop(roles);
 
@@ -140,14 +141,10 @@ class Discord {
 
         userRoles.forEach(userRole=>{
 
-            if(member) {
+            const getRole = member.roles.cache.get(userRole.role_id);
+            if(getRole) {
 
-                const getRole = member.roles.cache.get(userRole.role_id);
-                if(getRole) {
-
-                    userRoleReturn.push(getRole);
-
-                }
+                userRoleReturn.push(getRole);
 
             }
 

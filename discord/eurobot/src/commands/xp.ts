@@ -1,6 +1,5 @@
 import xp from "../models/xp"
 import { SlashCommandBuilder } from "@discordjs/builders";
-import {Eurobot} from "../../types"
 import { CommandInteraction, EmbedBuilder } from "discord.js";
 
 const data = new SlashCommandBuilder()

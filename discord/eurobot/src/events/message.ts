@@ -3,8 +3,8 @@ import {Message,EmbedBuilder, TextChannel, MessageOptions} from "discord.js";
 import TwitterModel from "../models/twitter";
 import DiscordModel from "../models/discord";
 import Tools from '../tools';
-import {Eurobot} from "../../types/index.d"
-import * as os from 'os';
+import {Eurobot} from "../../types/index.d";
+import xp from "../models/xp";
 
 module.exports = {
 
@@ -96,9 +96,23 @@ module.exports = {
 
 					if(post) {
 
-						console.log("💙 Tweeted "+message.content);
+						if(message.author.id !== discord.Client.user.id) {
+
+							const ModelXP = new xp();
+								
+							// SET XP
+							await ModelXP.set(message,message.author.id,3)
+							.catch(e=>{
+								console.log(`[XP] Error adding 3 XP to ${message.author.username}`)
+								console.log(e);
+							});
+
+							console.log(`[XP] Adding 3 XP to ${message.author.username}`);
+
+						}
 		
 					}
+
 
 				}
 
@@ -120,7 +134,7 @@ module.exports = {
 				// TODO
 				// if(["are you", "is"])
 
-				if(Math.random() < 0.66) {
+				if(Math.random() < 0.45) {
 
 					// respond
 					const comment = await model.comment(message,{emoji:emoji})
