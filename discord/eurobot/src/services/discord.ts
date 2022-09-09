@@ -110,6 +110,9 @@ class Discord {
         // None of the roles exist
         if(userRoles.length < 1) return;
 
+        if(!message.guild.roles) return;
+        if(!message.member.roles) return;
+
         userRoles.forEach(userRole=>{
 
             const RoleGuild = message.guild.roles.cache.find(guildRole=>guildRole.id === userRole.role_id);

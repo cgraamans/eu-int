@@ -97,8 +97,6 @@ export default class NewsModel {
             let thumbnail:string;
             news.subreddit.forEach((submission)=>{
 
-                console.log(submission);
-
                 if(!thumbnail && submission.thumbnail && submission.thumbnail !== "self" && submission.thumbnail !== "default") thumbnail = submission.thumbnail; 
                 text += `🔹${submission.title}\n<${submission.url}>\n\n`;
 

@@ -10,7 +10,7 @@ import {Eurobot} from "../../types/index";
 import db from "../services/db";
 
 
-export default class TwitterModel {
+export default class ArticleModel {
 
     constructor() {
 
@@ -51,12 +51,17 @@ export default class TwitterModel {
 
     }
 
+    public async getByText(text:string) {
+        return await db.q("SELECT * FROM discord_log_articles WHERE text = ?",[text]);
+
+    }
+
     public async post(message:Discord.Message,user?:Discord.User|Discord.PartialUser) {
 
         let text = message.content;
 
         // only tweets that dont exist
-        const hasTweet = await db.q("SELECT * FROM discord_log_articles WHERE text = ?",[text]);
+        const hasTweet = await this.getByText(text);
         if(hasTweet.length > 0) return;
 
         let media:Eurobot.Twitter.MediaObj[] = [];

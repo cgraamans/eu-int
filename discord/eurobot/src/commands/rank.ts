@@ -2,7 +2,7 @@ import xp from "../models/xp"
 import { SlashCommandBuilder } from "@discordjs/builders";
 import {Eurobot} from "../../types"
 import { CommandInteraction, EmbedBuilder } from "discord.js";
-
+import tools from "../../src/tools";
 const data = new SlashCommandBuilder()
 	.setName('rank')
 	.setDescription('Retrieves your rank from Forum Gotterfunken');
@@ -25,13 +25,17 @@ module.exports = {
 		embed.setTitle(`FG Top 10 for this month`);
 
 		let rankList:string = "";
-		getRankList.forEach(row=>{
 
-			let rankName = "[deleted]";
-			const rankUser = interaction.guild.members.cache.get(row.user_id);
+		await tools.asyncForEach(getRankList, async (row:Eurobot.Rank.Row)=>{
+
+			let rankName = "";
+			const rankUser = await interaction.guild.members.fetch({force:true,user:row.user_id});
+			
 			if(rankUser) rankName = rankUser.user.username;
-
 			rankList += `**${row.rank}** - **@${rankName}** (${row.xp} XP)\n`
+
+			return;
+
 		});
 
 		embed.setDescription(`RANKINGS\n${rankList}`)

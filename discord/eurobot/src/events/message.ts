@@ -1,19 +1,20 @@
 import discord from "../services/discord";
-import {Message,EmbedBuilder, TextChannel, MessageOptions} from "discord.js";
-import TwitterModel from "../models/twitter";
+import {Message,EmbedBuilder, TextChannel, MessageOptions, User, MessageReaction} from "discord.js";
+import ArticleModel from "../models/articles";
 import DiscordModel from "../models/discord";
 import Tools from '../tools';
 import {Eurobot} from "../../types/index.d";
 import xp from "../models/xp";
 
+const xpEmojis = ["loveEU","eupog"];
+const ArticleFilter = (reaction:MessageReaction) => {
+	return xpEmojis.includes(reaction.emoji.name);
+};
+
 module.exports = {
 
 	name: 'messageCreate',
 	async execute(message:Message) {
-
-		// console.log(message);
-
-		// if(message.webhookId) console.log(message);
 
 		// Routing
 		if(discord.Config.Routes) {
@@ -28,6 +29,7 @@ module.exports = {
 			if(message.channel && message.channel.id) channelId = message.channel.id;
 
 			if(!channelId) return;
+			if(!message.guild) return;
 			
 			let routing = discord.Config.Routes.filter(route=>route.from === channelId)
 			if(routing.length > 0) {
@@ -80,41 +82,168 @@ module.exports = {
 			if (message.content.includes("https://")) {
 
 				let canTweet:Boolean = false;
+				const ModelXP = new xp();
 
-				const authorized = await discord.authorizeMessage(message,["Admin","Mod","Twitter","FGN"]) ;
-				if(authorized && authorized.length > 0) canTweet = true;
+				// IS TWEET CHANNEL
+				const tweetChannels = discord.Config.Channels.filter(channel=>channel.category === "Twitter" && channel.channel_id === message.channel.id);
+				if(tweetChannels.length > 0) {
+
+					const authorized = await discord.authorizeMessage(message,["Admin","Mod","Twitter","FGN"]) ;
+					if((authorized && authorized.length > 0) || message.author.id === discord.Client.user.id) {
+						
+						const ModelArticle = new ArticleModel();
+
+						const post = await ModelArticle.post(message)
+							.catch(e=>{console.log(e)});
+	
+						if(post) {
+	
+							if(message.author.id !== discord.Client.user.id) {
+	
+									
+								// SET XP
+								await ModelXP.set(message,message.author.id,3)
+								.catch(e=>{
+									console.log(`[XP] Error adding 3 XP to ${message.author.username}`)
+									console.log(e);
+								});
+	
+								console.log(`[XP] Adding 3 XP to ${message.author.username}`);
+	
+							}
+			
+						}
+	
+						return;
+
+					}
+
+				// IS NOT TWEET CHANNEL
+				} else {
+
+					let reactionChannel = message.guild.channels.cache.get(message.channel.id);
+					if(!reactionChannel) return;
+					if(!reactionChannel.isTextBased) return;
+
+					const articles = message.guild.channels.cache.find(g=>g.id === "609511947762925597") as TextChannel;
+					if(!articles) return;
+
+					const collector = message.createReactionCollector({filter:ArticleFilter, time:1800000});
+
+					collector.on('collect', async (reaction, user) => {
+
+						console.log(`Collected ${reaction.emoji.name} from ${user.tag}`);
+
+						// Get articleMessages
+						const articleMessages = await articles.messages.fetch();
+						if(!articleMessages) return;
+
+						// Get userGuildMember
+						const userGuildMember = reaction.message.guild.members.cache.get(user.id);
+
+						// AUTH LOGIC
+						const authorized = await discord.authorizeMember(userGuildMember,["Admin","Mod","Twitter","FGN"]);
+						if(authorized.length > 0) {
+
+							// COPY TO ARTICLES
+
+							const ArticleMessage = articleMessages.find(aM=>aM.content.replace(/[^a-zA-Z0-9]/g, "") === message.content.replace(/[^a-zA-Z0-9]/g, ""));
+							if(!ArticleMessage) {
+								
+								await articles.send(`@${message.author.username} (#${reactionChannel.name}) - ${message.content}`);
+
+								// SET XP
+								await ModelXP.set(message,message.author.id,3)
+								.catch(e=>{
+									console.log(`[XP] Error adding 3 XP to ${message.author.username}`)
+									console.log(e);
+								});
+								console.log(`[XP] Adding 3 XP to ${message.author.username}`);
+
+							}
+							return;
+							
+						} else {
+
+							// SET XP
+							await ModelXP.set(message,userGuildMember.id)
+								.catch(e=>{
+									console.log(`[XP] Error adding 1 XP to ${user.username}`)
+									console.log(e);
+								});
+
+							console.log(`[XP] Adding 1 XP to ${user.username}`);
+
+							const numXP = await ModelXP.getByMessage(message.id)
+								.catch(e=>{console.log(e)});
+
+							if(numXP.length > 2) {
+
+								// COPY TO ARTICLES
+
+								console.log("MC=>",message.content.replace(/[^a-zA-Z]/g, ""));
+
+								const ArticleMessage = articleMessages.find(aM=>aM.content.replace(/[^a-zA-Z]/g, "") === message.content.replace(/[^a-zA-Z]/g, ""));
+								if(!ArticleMessage) {
+
+									console.log("AM=>",ArticleMessage);
+									
+									await articles.send(`@${message.author.username} (#${reactionChannel.name}) - ${message.content}`);
+
+									// SET XP
+									await ModelXP.set(message,message.author.id,3)
+									.catch(e=>{
+										console.log(`[XP] Error adding 3 XP to ${message.author.username}`)
+										console.log(e);
+									});
+									
+									console.log(`[XP] Adding 3 XP to ${message.author.username}`);
+
+								}
+
+							}
+
+							return;
+
+						}
+
+
+
+					});
+					
+					collector.on('end', collected => {
+						console.log(`Collected ${collected.size} items`);
+					});
+						// .then(collected=>{
+
+
+						// 	console.log(collected);
+
+						// 	if(collected) console.log(collected);
+
+						// }).catch(e=>{
+						// 	console.log(e);
+						// })
+
+				}
+
 				
 				if(message.author.id === discord.Client.user.id) canTweet = true;
 
-				const tweetChannels = discord.Config.Channels.filter(channel=>channel.category === "Twitter" && channel.channel_id === message.channel.id);
 				if(tweetChannels.length > 0 && canTweet) {
 
-					const ModelTwitter = new TwitterModel();
-
-					const post = await ModelTwitter.post(message)
-						.catch(e=>{console.log(e)});
-
-					if(post) {
-
-						if(message.author.id !== discord.Client.user.id) {
-
-							const ModelXP = new xp();
-								
-							// SET XP
-							await ModelXP.set(message,message.author.id,3)
-							.catch(e=>{
-								console.log(`[XP] Error adding 3 XP to ${message.author.username}`)
-								console.log(e);
-							});
-
-							console.log(`[XP] Adding 3 XP to ${message.author.username}`);
-
-						}
-		
-					}
 
 
 				}
+
+				// // FIX FOR DISCORD TWITTER
+				// if(message.content.includes("https://twitter.com")) {
+
+				// 	const idxInitial = message.content.indexOf("twitter.com");
+
+				// 	message.edit(message.content.slice(0,idxInitial)+"fx"+message.content.slice(idxInitial));
+					
+				// }
 
 			}
 
