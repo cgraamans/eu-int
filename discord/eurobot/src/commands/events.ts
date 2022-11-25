@@ -53,7 +53,7 @@ module.exports = {
 			.setDescription(calendarDescription + calendar)
 			.setColor(0x001489);
 
-		interaction.reply({embeds:[embed],ephemeral:true});
+		interaction.reply({embeds:[embed]});
 
 		return;
 

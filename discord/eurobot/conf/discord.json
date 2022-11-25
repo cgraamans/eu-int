@@ -21,8 +21,12 @@
          "channel_id": "817966137782173716",
          "category": "Twitter"
        },
-        {
-         "channel_id": "609511947762925597",
+       {
+        "channel_id": "609511947762925597",
+        "category": "Twitter"
+       },
+       {
+         "channel_id": "1026223849987125288",
          "category": "Twitter"
        },
         {
@@ -457,6 +461,7 @@
         { "reaction": "huh", "category": "default" },
         { "reaction": "eh?", "category": "default" },
         { "reaction": "grr", "category": "default" },
+        { "reaction": "anschluss bitte", "category": "default" },
         { "reaction": "Freude", "category": "default" },
         { "reaction": "pay debnts", "category": "default" },
         { "reaction": "FREUDE", "category": "default" },

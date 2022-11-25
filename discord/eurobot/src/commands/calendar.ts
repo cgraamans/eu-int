@@ -34,7 +34,8 @@ module.exports = {
 		if(stringOption) timespan = stringOption;
 
 		const span:Eurobot.Calendar.Span = model.textToUnixTimeRange(timespan);
-		const items = await google.Calendar(span.range)
+		const items = await google.Calendar(span.range).catch(e=>{console.log(e)});
+        if(!items || items.length < 1) return;
 
 		const calendar = model.toStringCalendar(items,span)
 
@@ -43,9 +44,10 @@ module.exports = {
 		const embed = new EmbedBuilder()
 			.setTitle(`🇪🇺 Eurobot Calendar`)
 			.setDescription(calendarDescription + calendar)
-			.setColor(0x001489);
+			.setColor(0x001489)
+			.setFooter({text:'You can find our calendar here: https://bit.ly/30uIhtL'});
 
-		interaction.reply({embeds:[embed],ephemeral:true});
+		interaction.reply({embeds:[embed]});
 
 		return;
 

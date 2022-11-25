@@ -43,7 +43,7 @@ export default class NewsModel {
 
         }
 
-        if(type="new") {
+        if(type === "new") {
 
 
             let New = await reddit.client.getNew(obj.keyword,{limit:this.maxListSize+2})
@@ -97,7 +97,8 @@ export default class NewsModel {
             let thumbnail:string;
             news.subreddit.forEach((submission)=>{
 
-                if(!thumbnail && submission.thumbnail && submission.thumbnail !== "self" && submission.thumbnail !== "default") thumbnail = submission.thumbnail; 
+                if(!thumbnail && submission.thumbnail && submission.thumbnail !== "self" && submission.thumbnail !== "nsfw" && submission.thumbnail !== "default") thumbnail = submission.thumbnail; 
+                
                 text += `🔹${submission.title}\n<${submission.url}>\n\n`;
 
             });

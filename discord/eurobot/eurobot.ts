@@ -20,6 +20,8 @@ const discordModel = new DiscordModel();
 
 console.log(`APP Init [${new Date()}] @ ${__dirname}`);
 
+
+// SET COMMANDS
 try {
 
     Discord.Client.commands = new Collection();
@@ -39,7 +41,8 @@ try {
 
 }
 
-Discord.Client.on("interactionCreate",async (interaction)=>{
+// INTERACTIONS
+Discord.Client.on("interactionCreate", async (interaction)=>{
 
     if (!interaction.isCommand()) return;
 
@@ -64,51 +67,52 @@ Discord.Client.on("interactionCreate",async (interaction)=>{
 
 try {
 
-    // EVENT CHECK JOB
-    jobs.push(schedule.scheduleJob(`*/3 * * * *`, async function(){
+    // // EVENT CHECK JOB
+    // jobs.push(schedule.scheduleJob(`*/3 * * * *`, async function(){
 
-        const calendar = await google.Calendar({from:new Date(new Date().getTime() - (3*60*1000)),to:new Date()});
+    //     const calendar = await google.Calendar({from:new Date(new Date().getTime() - (3*60*1000)),to:new Date()});
 
-        if(calendar.length > 0) {
+    //     if(calendar.length > 0) {
 
-            const embed = new EmbedBuilder()
-                .setTitle(`🇪🇺 Event Starting!`)
-                .setColor(0x001489);
+    //         const embed = new EmbedBuilder()
+    //             .setTitle(`🇪🇺 Event Starting!`)
+    //             .setColor(0x001489);
 
-            Tools.asyncForEach(calendar,async (entry:any)=>{
+    //         Tools.asyncForEach(calendar,async (entry:any)=>{
 
-                if(!entry.start) return;
-                if(!entry.start.dateTime) return;
-                if(entry.status !== "confirmed") return;
+    //             if(!entry.start) return;
+    //             if(!entry.start.dateTime) return;
+    //             if(entry.status !== "confirmed") return;
 
-                const loggedID = await calendarModel.getLogID(entry.id);
+    //             const loggedID = await calendarModel.getLogID(entry.id);
 
-                if(loggedID) return; 
+    //             if(loggedID) return; 
 
-                let description = "";
-                if(entry.description) description = `${entry.description}\n`;
+    //             let description = "";
+    //             if(entry.description) description = `${entry.description}\n`;
 
-                embed.setDescription(`**${entry.summary}**\n${description}\nStarts: ${Tools.dateToHHss(new Date(entry.start.dateTime),false)} (NOW!), Ends: ${Tools.dateToHHss(new Date(entry.end.dateTime),false)}`)
+    //             embed.setDescription(`**${entry.summary}**\n${description}\nStarts: ${Tools.dateToHHss(new Date(entry.start.dateTime),false)} (NOW!), Ends: ${Tools.dateToHHss(new Date(entry.end.dateTime),false)}`)
 
-                await discordModel.pushJobToDiscord("Job-Calendar-EventCheck",embed);
+    //             await discordModel.pushJobToDiscord("Job-Calendar-EventCheck",embed);
 
-                await calendarModel.postLogID(entry.id);
+    //             await calendarModel.postLogID(entry.id);
 
-                return;
+    //             return;
 
-            });
+    //         });
 
-        }
+    //     }
 
-        return;
+    //     return;
 
-    })); // EVENT CHECK JOB
+    // })); // EVENT CHECK JOB
 
     // CALENDAR JOB MORNING
     jobs.push(schedule.scheduleJob(`0 7 * * *`, async function(){
     
 		const span:Eurobot.Calendar.Span = calendarModel.textToUnixTimeRange("today");
-		const items = await google.Calendar(span.range)
+		const items = await google.Calendar(span.range).catch(e=>{console.log(e)});
+        if(!items || items.length < 1) return;
 
 		const calendar = calendarModel.toStringCalendar(items,span)
 
@@ -129,7 +133,8 @@ try {
     jobs.push(schedule.scheduleJob(`0 19 * * *`, async function(){
     
 		const span:Eurobot.Calendar.Span = calendarModel.textToUnixTimeRange("tomorrow");
-		const items = await google.Calendar(span.range)
+		const items = await google.Calendar(span.range).catch(e=>{console.log(e)});
+        if(!items || items.length < 1) return;
 
 		const calendar = calendarModel.toStringCalendar(items,span)
 
@@ -138,8 +143,7 @@ try {
 		const embed = new EmbedBuilder()
 			.setTitle(`🇪🇺 Eurobot Calendar`)
 			.setDescription(calendarDescription + calendar)
-			.setColor(0x001489)
-            .setFooter({text:`use /calendar :)`});
+			.setColor(0x001489);  
     
         await discordModel.pushJobToDiscord("Job-Calendar",embed);
 

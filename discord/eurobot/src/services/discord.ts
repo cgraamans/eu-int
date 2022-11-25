@@ -70,21 +70,13 @@ class Discord {
             this.Client.on("error",e=>{
 
                 console.log("!! Discord Service Client Error",e);
-                setTimeout(()=>{
-                    console.log(`Logging into Discord...`);
-                    this.Client.login(this.key);
-                },15000);
-            
+
             });
 
             // disconnect
             this.Client.on('disconnect',(message:Message)=>{
 
                 if(message) console.log("!! Disconnected from Discord",message);
-                setTimeout(()=>{
-                    console.log(`Logging into Discord...`);
-                    this.Client.login(this.key);
-                },15000);
             
             });
 

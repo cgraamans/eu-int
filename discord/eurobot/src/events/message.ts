@@ -6,7 +6,7 @@ import Tools from '../tools';
 import {Eurobot} from "../../types/index.d";
 import xp from "../models/xp";
 
-const xpEmojis = ["loveEU","eupog"];
+const xpEmojis = ["loveEU"];
 const ArticleFilter = (reaction:MessageReaction) => {
 	return xpEmojis.includes(reaction.emoji.name);
 };
@@ -88,162 +88,43 @@ module.exports = {
 				const tweetChannels = discord.Config.Channels.filter(channel=>channel.category === "Twitter" && channel.channel_id === message.channel.id);
 				if(tweetChannels.length > 0) {
 
-					const authorized = await discord.authorizeMessage(message,["Admin","Mod","Twitter","FGN"]) ;
+					console.log(">>>>>> TWEETCHANNEL")
+
+					const authorized = await discord.authorizeMessage(message,["Admin","Mod","Twitter","FGN"])
+										.catch(e=>{console.log(e)});
 					if((authorized && authorized.length > 0) || message.author.id === discord.Client.user.id) {
 						
+						console.log("authorized");
+
 						const ModelArticle = new ArticleModel();
 
 						const post = await ModelArticle.post(message)
 							.catch(e=>{console.log(e)});
-	
+
 						if(post) {
-	
+
 							if(message.author.id !== discord.Client.user.id) {
+								const checkXP = await ModelXP.getById(message.id,message.author.id)
+									.catch(e=>{console.log(e)});
 	
-									
+								if(checkXP && checkXP.length > 0) return;
+
 								// SET XP
-								await ModelXP.set(message,message.author.id,3)
-								.catch(e=>{
-									console.log(`[XP] Error adding 3 XP to ${message.author.username}`)
-									console.log(e);
-								});
+								await ModelXP.set(message,message.author.id)
+									.catch(e=>{console.log(e)});
 	
-								console.log(`[XP] Adding 3 XP to ${message.author.username}`);
+								console.log(`>>>>>> [XP] Adding 1 XP to ${message.author.username}`);
 	
 							}
-			
+
 						}
-	
-						return;
 
 					}
 
+					return;
+
 				// IS NOT TWEET CHANNEL
-				} else {
-
-					let reactionChannel = message.guild.channels.cache.get(message.channel.id);
-					if(!reactionChannel) return;
-					if(!reactionChannel.isTextBased) return;
-
-					const articles = message.guild.channels.cache.find(g=>g.id === "609511947762925597") as TextChannel;
-					if(!articles) return;
-
-					const collector = message.createReactionCollector({filter:ArticleFilter, time:1800000});
-
-					collector.on('collect', async (reaction, user) => {
-
-						console.log(`Collected ${reaction.emoji.name} from ${user.tag}`);
-
-						// Get articleMessages
-						const articleMessages = await articles.messages.fetch();
-						if(!articleMessages) return;
-
-						// Get userGuildMember
-						const userGuildMember = reaction.message.guild.members.cache.get(user.id);
-
-						// AUTH LOGIC
-						const authorized = await discord.authorizeMember(userGuildMember,["Admin","Mod","Twitter","FGN"]);
-						if(authorized.length > 0) {
-
-							// COPY TO ARTICLES
-
-							const ArticleMessage = articleMessages.find(aM=>aM.content.replace(/[^a-zA-Z0-9]/g, "") === message.content.replace(/[^a-zA-Z0-9]/g, ""));
-							if(!ArticleMessage) {
-								
-								await articles.send(`@${message.author.username} (#${reactionChannel.name}) - ${message.content}`);
-
-								// SET XP
-								await ModelXP.set(message,message.author.id,3)
-								.catch(e=>{
-									console.log(`[XP] Error adding 3 XP to ${message.author.username}`)
-									console.log(e);
-								});
-								console.log(`[XP] Adding 3 XP to ${message.author.username}`);
-
-							}
-							return;
-							
-						} else {
-
-							// SET XP
-							await ModelXP.set(message,userGuildMember.id)
-								.catch(e=>{
-									console.log(`[XP] Error adding 1 XP to ${user.username}`)
-									console.log(e);
-								});
-
-							console.log(`[XP] Adding 1 XP to ${user.username}`);
-
-							const numXP = await ModelXP.getByMessage(message.id)
-								.catch(e=>{console.log(e)});
-
-							if(numXP.length > 2) {
-
-								// COPY TO ARTICLES
-
-								console.log("MC=>",message.content.replace(/[^a-zA-Z]/g, ""));
-
-								const ArticleMessage = articleMessages.find(aM=>aM.content.replace(/[^a-zA-Z]/g, "") === message.content.replace(/[^a-zA-Z]/g, ""));
-								if(!ArticleMessage) {
-
-									console.log("AM=>",ArticleMessage);
-									
-									await articles.send(`@${message.author.username} (#${reactionChannel.name}) - ${message.content}`);
-
-									// SET XP
-									await ModelXP.set(message,message.author.id,3)
-									.catch(e=>{
-										console.log(`[XP] Error adding 3 XP to ${message.author.username}`)
-										console.log(e);
-									});
-									
-									console.log(`[XP] Adding 3 XP to ${message.author.username}`);
-
-								}
-
-							}
-
-							return;
-
-						}
-
-
-
-					});
-					
-					collector.on('end', collected => {
-						console.log(`Collected ${collected.size} items`);
-					});
-						// .then(collected=>{
-
-
-						// 	console.log(collected);
-
-						// 	if(collected) console.log(collected);
-
-						// }).catch(e=>{
-						// 	console.log(e);
-						// })
-
 				}
-
-				
-				if(message.author.id === discord.Client.user.id) canTweet = true;
-
-				if(tweetChannels.length > 0 && canTweet) {
-
-
-
-				}
-
-				// // FIX FOR DISCORD TWITTER
-				// if(message.content.includes("https://twitter.com")) {
-
-				// 	const idxInitial = message.content.indexOf("twitter.com");
-
-				// 	message.edit(message.content.slice(0,idxInitial)+"fx"+message.content.slice(idxInitial));
-					
-				// }
 
 			}
 
@@ -355,16 +236,16 @@ module.exports = {
 			}
 
 			// Varoufakis React
-			if(message.content.toLowerCase().includes("varoufakis")) {
+			// if(message.content.toLowerCase().includes("varoufakis")) {
 
-				if(message.author.id === discord.Client.user.id) return;
+			// 	if(message.author.id === discord.Client.user.id) return;
 
-				const emoji = message.guild.emojis.cache.find(x=>x.name === "dijsselbloem");
-				if(emoji) await message.reply(`${emoji}`);
+			// 	const emoji = message.guild.emojis.cache.find(x=>x.name === "dijsselbloem");
+			// 	if(emoji) await message.reply(`${emoji}`);
 
-				return;
+			// 	return;
 
-			}			
+			// }			
 
 		}
 

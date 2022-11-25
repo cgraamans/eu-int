@@ -27,9 +27,14 @@ export class Google {
         this.jwtClient.authorize(function (err:any, tokens:any) {
 
             if (err) {
-                throw {err};
+
+                console.log("Google Auth Error");
+                console.log(err)
+
             } else {
+
                 console.log("Google Init");
+
             }
 
         });

@@ -48,11 +48,14 @@ export class Twitter {
             await Tools.asyncForEach(media,async (mediaObj:Eurobot.Twitter.MediaObj)=>{
 
                 const mediaId = await this.initUpload(mediaObj.size,mediaObj.type).catch(e=>{throw e});
+                if(mediaId) {
 
-                await this.appendUpload(mediaId,mediaObj.data).catch(e=>{throw e});
-                const finalized = await this.finalizeUpload(mediaId).catch(e=>{throw e});
+                    await this.appendUpload(mediaId,mediaObj.data).catch(e=>{throw e});
+                    const finalized = await this.finalizeUpload(mediaId).catch(e=>{throw e});
 
-                mediaIds.push(mediaId);
+                    mediaIds.push(mediaId);
+
+                }
 
             });
 

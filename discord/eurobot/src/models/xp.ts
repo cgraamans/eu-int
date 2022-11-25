@@ -64,20 +64,28 @@ export default class xp {
 
     }
 
-    public async set(message:Discord.Message,userId:string,xp:number=1) {
-
-        const checkHasNotSubmittedBefore = await db.q("SELECT message_id FROM discord_log_xp WHERE message_id = ? AND user_id = ?",[message.id,userId])
+    public async getById(messageId:string,userId:string) {
+        
+        return await db.q("SELECT message_id FROM discord_log_xp WHERE message_id = ? AND user_id = ?",[messageId,userId])
             .catch(e=>{console.log(e)});
         
-        if(checkHasNotSubmittedBefore.length > 0) return;
+    }
 
-        const res = await db.q("INSERT INTO discord_log_xp SET ?",[{
-            message_id:message.id,
-            guild_id:message.guild.id,
-            channel_id:message.channel.id,
-            user_id:userId,
-            xp:xp
-        }]).catch(e=>{console.log(e)});
+
+    public async set(message:Discord.Message,userId:string,xp:number=1) {
+
+        const check = await this.getById(message.id,userId);
+        if(!check || !(check.length > 0)) {
+
+            const res = await db.q("INSERT INTO discord_log_xp SET ?",[{
+                message_id:message.id,
+                guild_id:message.guild.id,
+                channel_id:message.channel.id,
+                user_id:userId,
+                xp:xp
+            }]).catch(e=>{console.log(e)});
+
+        }
 
         return;
 
