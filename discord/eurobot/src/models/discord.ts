@@ -40,8 +40,8 @@ export default class DiscordModel {
             Tools.asyncForEach(confChannels,async (target:Eurobot.Channel) => {
 
                 const channel = guild.channels.cache.get(target.channel_id) as TextChannel;
-                if(channel && channel) {
-                    await channel.send({embeds:[embed]});
+                if(channel) {
+                    await channel.send({embeds:[embed]}).catch(e=>{console.log(e)});
                 }
                 return;
 

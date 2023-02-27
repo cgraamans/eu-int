@@ -1,5 +1,5 @@
 import discord from "../services/discord";
-import {Message,EmbedBuilder, TextChannel, MessageOptions, User, MessageReaction} from "discord.js";
+import {Message,EmbedBuilder, TextChannel, BaseMessageOptions, User, MessageReaction} from "discord.js";
 import ArticleModel from "../models/articles";
 import DiscordModel from "../models/discord";
 import Tools from '../tools';
@@ -23,8 +23,8 @@ module.exports = {
 			if(message.webhookId) {
 				
 				channelId = message.channelId;
-				console.log("WEBHOOK",message,"/WEBHOOK");
-				console.log("CID",channelId,"/CID");
+				// console.log("WEBHOOK",message,"/WEBHOOK");
+				// console.log("CID",channelId,"/CID");
 			}
 			if(message.channel && message.channel.id) channelId = message.channel.id;
 
@@ -46,7 +46,7 @@ module.exports = {
 				const messageAttachment = message.attachments.size > 0 ? message.attachments.first().url : null;
 				if(messageAttachment) embed.setImage(messageAttachment);
 
-				let routedMessage:MessageOptions = {};
+				let routedMessage:BaseMessageOptions = {};
 				if(message.content.startsWith("https://")) routedMessage.content = message.content;
 
 				routedMessage.embeds = [embed];
@@ -88,13 +88,13 @@ module.exports = {
 				const tweetChannels = discord.Config.Channels.filter(channel=>channel.category === "Twitter" && channel.channel_id === message.channel.id);
 				if(tweetChannels.length > 0) {
 
-					console.log(">>>>>> TWEETCHANNEL")
+					// console.log(">>>>>> TWEETCHANNEL")
 
 					const authorized = await discord.authorizeMessage(message,["Admin","Mod","Twitter","FGN"])
 										.catch(e=>{console.log(e)});
 					if((authorized && authorized.length > 0) || message.author.id === discord.Client.user.id) {
 						
-						console.log("authorized");
+						// console.log("authorized");
 
 						const ModelArticle = new ArticleModel();
 
@@ -113,7 +113,7 @@ module.exports = {
 								await ModelXP.set(message,message.author.id)
 									.catch(e=>{console.log(e)});
 	
-								console.log(`>>>>>> [XP] Adding 1 XP to ${message.author.username}`);
+								// console.log(`>>>>>> [XP] Adding 1 XP to ${message.author.username}`);
 	
 							}
 

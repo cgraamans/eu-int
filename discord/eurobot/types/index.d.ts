@@ -1,5 +1,8 @@
 import { Submission } from 'snoowrap';
 import { GuildEmoji, Role, User } from 'discord.js';
+import mastodon from 'src/services/mastodon';
+
+declare module '*';
 
 declare module "discord.js" {
     export interface Client {

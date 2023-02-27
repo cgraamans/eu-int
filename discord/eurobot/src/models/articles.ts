@@ -1,14 +1,17 @@
+import fetch from "node-fetch";
+
 import Discord from "discord.js";
 import * as FileType from "file-type"
 import * as https from "https";
 
 import Twitter from "../services/twitter";
+import twitter from "twitter";
+
+import Mastodon from "../services/mastodon";
+
 import Tools from '../tools';
-
 import {Eurobot} from "../../types/index";
-
 import db from "../services/db";
-
 
 export default class ArticleModel {
 
@@ -52,41 +55,15 @@ export default class ArticleModel {
     }
 
     public async getByText(text:string) {
-        return await db.q("SELECT * FROM discord_log_articles WHERE text = ?",[text]);
+
+        return await db.q("SELECT * FROM log_articles WHERE text = ?",[text]);
 
     }
 
-    public async post(message:Discord.Message,user?:Discord.User|Discord.PartialUser) {
+    // Prepare tweet data (attachments)
+    public async tweetData(message:Discord.Message) {
 
-        let text = message.content;
-
-        // only tweets that dont exist
-        const hasTweet = await this.getByText(text);
-        if(hasTweet.length > 0) return;
-
-        let media:Eurobot.Twitter.MediaObj[] = [];
-        let discordUserID = message.author.id;
-        if(user) discordUserID = user.id;
-
-        // Determine Length of tweet
-        const textArr = text.split(" ");
-        let textLinks = 0;
-        let textElements:string[] = [];
-        textArr.forEach(textElement=>{
-            if(textElement.startsWith("https://")) {
-                textLinks++;
-            } else {
-                textElements.push(textElement);
-            }
-        });
-
-        let cleanText = textArr.join(" ");
-        if(cleanText.length + (textLinks * 23) > 280) {
-        
-            cleanText = cleanText.slice(0,(280 - (textLinks * 23) - 3)) + "...";
-
-        }
-        
+        let tweetMedia:Eurobot.Twitter.MediaObj[] = [];
 
         // images [WIP]
         if(message.attachments) {
@@ -105,24 +82,118 @@ export default class ArticleModel {
                 if(file) {
 
                     const type = FileType.fromBuffer(file).toString();
-                    media.push({size:Buffer.byteLength(file).toString(),type:type,data:file});
+                    tweetMedia.push({size:Buffer.byteLength(file).toString(),type:type,data:file});
 
                 }
 
-                return;
 
             });
 
-            if(message.content.length < 1 && media.length < 1) return;
+        }
+
+        return tweetMedia
+        
+
+    }
+
+    // Prepare tweet
+    public sanitizeTweet(message:Discord.Message) {
+
+        let text = message.content;
+
+        // Determine Length of tweet
+        const textArr = text.split(" ");
+        let textLinks = 0;
+        let textElements:string[] = [];
+        textArr.forEach(textElement=>{
+            if(textElement.startsWith("https://")) {
+                textLinks++;
+            } else {
+                textElements.push(textElement);
+            }
+        });
+
+        let prodTxt = textArr.join(" ");
+        if(prodTxt.length + (textLinks * 23) > 280) {
+        
+            prodTxt = prodTxt.slice(0,(280 - (textLinks * 23) - 3)) + "...";
 
         }
 
-        const post = await Twitter.post(cleanText,media);
+        return prodTxt;
 
-        await db.q("INSERT INTO discord_log_articles SET ?",[{
+    }
+
+    public sanitizeMasto(message:Discord.Message) {
+
+        let text = message.content;
+
+        // Determine Length of tweet
+        const textArr = text.split(" ");
+        let textLinks = 0;
+        let textElements:string[] = [];
+        textArr.forEach(textElement=>{
+            if(textElement.startsWith("https://")) {
+                textLinks++;
+            } else {
+                textElements.push(textElement);
+            }
+        });
+
+        let prodTxt = textArr.join(" ");
+        if(prodTxt.length + (textLinks * 23) > 500) {
+        
+            prodTxt = prodTxt.slice(0,(500 - (textLinks * 23) - 3)) + "...";
+
+        }
+
+        return prodTxt;
+
+    }
+
+    public async masto(text:string) {
+
+        const mastoRtn = Mastodon.client.postStatus(text)
+            .catch((err:any)=>console.log(err));
+
+            console.log(JSON.stringify(mastoRtn));
+            
+            return mastoRtn;
+
+    }
+    //
+    // POST ARTICLE TO SOCIAL MEDIA
+    //
+    public async post(message:Discord.Message,user?:Discord.User|Discord.PartialUser) {
+       
+        if(message.content.length < 1) return;
+
+        let discordUserID = message.author.id;
+        if(user) discordUserID = user.id;
+
+        // only entries that dont exist
+        const hasTweet = await this.getByText(message.content);
+        if(hasTweet.length > 0) return;
+
+        await db.q("INSERT INTO log_articles SET ?",[{
             user_id:discordUserID,
-            text:text
+            text:message.content
         }]);
+
+        const tweetMedia = await this.tweetData(message);
+        const sanitizedTweet = this.sanitizeTweet(message);
+        const sanitizedMasto = this.sanitizeMasto(message);
+
+        const post:{twitter:void|twitter.ResponseData,mastodon:any} = {twitter:undefined,mastodon:undefined};
+
+        if(sanitizedTweet) {
+            post.twitter = await Twitter.post(sanitizedTweet,tweetMedia);
+        }
+        if(sanitizedMasto) {
+            post.mastodon = await this.masto(sanitizedMasto);
+        }
+
+        // console.log(post);
 
         return post;
 

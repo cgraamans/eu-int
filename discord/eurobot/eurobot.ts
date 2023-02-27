@@ -126,6 +126,8 @@ try {
     
         await discordModel.pushJobToDiscord("Job-Calendar",embed);
 
+        return;
+
     }));
 
 
@@ -147,11 +149,47 @@ try {
     
         await discordModel.pushJobToDiscord("Job-Calendar",embed);
 
+        return;
+
+    }));
+
+    // Idlestop
+    jobs.push(schedule.scheduleJob(`*/5 * * * *`, async function(){
+
+
+        const confChannels = Discord.Config.Channels.filter(ch=>ch.category === "Idlestop");
+        if(confChannels.length < 1) return;
+        console.log('pip');
+
+        Discord.Client.guilds.cache.forEach(guild => {
+
+            Tools.asyncForEach(confChannels,async (target:Eurobot.Channel) => {
+
+                const channel = guild.channels.cache.get(target.channel_id);
+                if(channel && channel.isTextBased()) {
+
+                    console.log(`channel name: ${channel.name}, timestamp: ${channel.lastMessage.createdTimestamp}`);
+
+                    // if(channel.lastMessage.createdTimestamp)
+
+                    
+
+                    // logic for checking if channel has been idle
+
+                }
+                return;
+
+            });
+
+            return;
+
+        });
+
+        return;
+
     }));
 
     // News JOB
-    // jobs.push(schedule.scheduleJob(`0 2 * * *`, async function(){
-
     jobs.push(schedule.scheduleJob(`0 */4 * * *`, async function(){
 
         let newsObj:Eurobot.News.Obj = {keyword:"eunews"};
@@ -171,6 +209,8 @@ try {
 		if((newsObj.subreddit &&newsObj.subreddit.length > 0) || (newsObj.twitter && newsObj.twitter.length > 0)) {    
 
             const embed = newsModel.toRich(newsObj);
+            if(!embed) return;
+            
             embed.setFooter({text:`/r/${newsObj.row.name} - use /news for more news :)`});
 
             await discordModel.pushJobToDiscord("Job-News",embed);
