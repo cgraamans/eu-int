@@ -8,7 +8,7 @@ import cookieParser from 'cookie-parser';
 import userRouter from './user';
 
 const router = express.Router();
-
+// const R = new router();
 
 /* 
 See: 
@@ -43,6 +43,8 @@ router.post('/register', async (req, res, next)=>{
  
         res.json({token: jsontoken});
    
+             next();
+
     } catch(e){    
         console.log(e);
         res.sendStatus(400);
@@ -78,6 +80,8 @@ router.post('/register', async (req, res, next)=>{
         });
     } 
  
+    next();
+
     } catch(e){
         console.log(e);
     }
@@ -122,5 +126,9 @@ async function  verifyToken (req:any, res:any, next:any){
   
 router.use('/user', verifyToken, userRouter);
 
+router.get("/",async(req,res,next)=>{
+    res.sendStatus(200);
+    next();
+})
 
 export default router;

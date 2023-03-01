@@ -1,4 +1,4 @@
-import express from 'express';
+import * as express from 'express';
 import User from '../models/user';
 import DB from '../services/db';
 
@@ -17,10 +17,9 @@ userRouter.param('userId', async (req:any, res, next, userId)=> {
     }
 });
  
- 
- 
 userRouter.get('/:userId',  (req:any, res, next)=>{
     res.status(200).json({user: req.user});
+    next();
 }); 
  
 userRouter.post('/',  async (req, res, next)=>{
