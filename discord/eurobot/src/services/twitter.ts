@@ -28,7 +28,7 @@ export class Twitter {
         });
 
         // Test connection on init
-        const params = {screen_name: "sn0rsan"};
+        const params = {screen_name: "eunewsbot"};
         this.client.get("statuses/user_timeline", params, (error)=>{
             if (error) console.log("Twitter Init Error",error);
             if(!error) console.log("Twitter Init");

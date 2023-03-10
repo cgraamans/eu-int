@@ -1,6 +1,6 @@
 import DB from "./db";
 import {Eurobot} from "../../types/index";
-import {IntentsBitField , Message, User, Client, Guild, GuildMember, Role, MessageReaction} from "discord.js";
+import {IntentsBitField, Partials, Message, User, Client, Guild, GuildMember, Role, MessageReaction} from "discord.js";
 import * as fs from "fs";
 import * as Conf from "../../conf/discord.json";
 
@@ -46,7 +46,12 @@ class Discord {
                     IntentsBitField.Flags.GuildMessages,
                     IntentsBitField.Flags.GuildWebhooks,
                     IntentsBitField.Flags.GuildMessageReactions,
-                    IntentsBitField.Flags.GuildEmojisAndStickers
+                    IntentsBitField.Flags.GuildEmojisAndStickers,
+                    IntentsBitField.Flags.GuildPresences
+                ],partials: [
+                    Partials.Message,
+                    Partials.Channel,
+                    Partials.Reaction
                 ]
             });
 

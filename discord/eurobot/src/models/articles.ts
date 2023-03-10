@@ -56,7 +56,7 @@ export default class ArticleModel {
 
     public async getByText(text:string) {
 
-        return await db.q("SELECT * FROM log_articles WHERE text = ?",[text]);
+        return await db.q(`SELECT * FROM log_articles WHERE text REGEXP ?`,[text]);
 
     }
 
@@ -171,15 +171,6 @@ export default class ArticleModel {
         let discordUserID = message.author.id;
         if(user) discordUserID = user.id;
 
-        // only entries that dont exist
-        const hasTweet = await this.getByText(message.content);
-        if(hasTweet.length > 0) return;
-
-        await db.q("INSERT INTO log_articles SET ?",[{
-            user_id:discordUserID,
-            text:message.content
-        }]);
-
         const tweetMedia = await this.tweetData(message);
         const sanitizedTweet = this.sanitizeTweet(message);
         const sanitizedMasto = this.sanitizeMasto(message);
@@ -192,8 +183,6 @@ export default class ArticleModel {
         if(sanitizedMasto) {
             post.mastodon = await this.masto(sanitizedMasto);
         }
-
-        // console.log(post);
 
         return post;
 

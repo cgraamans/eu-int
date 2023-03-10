@@ -5,11 +5,7 @@ import DiscordModel from "../models/discord";
 import Tools from '../tools';
 import {Eurobot} from "../../types/index.d";
 import xp from "../models/xp";
-
-const xpEmojis = ["loveEU"];
-const ArticleFilter = (reaction:MessageReaction) => {
-	return xpEmojis.includes(reaction.emoji.name);
-};
+import db from "../services/db";
 
 module.exports = {
 
@@ -69,61 +65,36 @@ module.exports = {
 			const ignoreChannel = discord.Config.Channels.filter(channel=>channel.category === "Ignore" && channel.channel_id === message.channel.id)
 			if(ignoreChannel.length > 0) return;
 
-			// FG SPECIFIC
-			// // DELETE ALL NON-ARTICLES FROM #ARTICLES
-			// if(message.channel.id === "609511947762925597" && (!message.content.startsWith("https://") && !message.content.startsWith("http://"))) {
+			// TWEET CHANNEL
+			const tweetChannels = discord.Config.Channels.filter(channel=>channel.category === "Twitter" && channel.channel_id === message.channel.id);
+			if(tweetChannels.length > 0) {
 				
-			// 	await message.delete().catch(e=>console.log(e));
-			// 	return;
-				
-			// }
+				if (message.content.includes("https://")) {
 
-			// Tweeting
-			if (message.content.includes("https://")) {
+					await db.q("INSERT INTO log_articles SET ?",[{
+						user_id:message.author.id,
+						text:message.content
+					}]);
 
-				let canTweet:Boolean = false;
-				const ModelXP = new xp();
+					const hasRole = message.member.roles.cache.some(role => ['Admin','Moderator','Staff','Eurobot'].includes(role.name));
+					if(!hasRole) return;
 
-				// IS TWEET CHANNEL
-				const tweetChannels = discord.Config.Channels.filter(channel=>channel.category === "Twitter" && channel.channel_id === message.channel.id);
-				if(tweetChannels.length > 0) {
+					const ModelArticle = new ArticleModel();
+					const post = await ModelArticle.post(message)
+						.catch(e=>{console.log(e)});
 
-					// console.log(">>>>>> TWEETCHANNEL")
-
-					const authorized = await discord.authorizeMessage(message,["Admin","Mod","Twitter","FGN"])
-										.catch(e=>{console.log(e)});
-					if((authorized && authorized.length > 0) || message.author.id === discord.Client.user.id) {
-						
-						// console.log("authorized");
-
-						const ModelArticle = new ArticleModel();
-
-						const post = await ModelArticle.post(message)
-							.catch(e=>{console.log(e)});
-
-						if(post) {
-
-							if(message.author.id !== discord.Client.user.id) {
-								const checkXP = await ModelXP.getById(message.id,message.author.id)
-									.catch(e=>{console.log(e)});
-	
-								if(checkXP && checkXP.length > 0) return;
-
-								// SET XP
-								await ModelXP.set(message,message.author.id)
-									.catch(e=>{console.log(e)});
-	
-								// console.log(`>>>>>> [XP] Adding 1 XP to ${message.author.username}`);
-	
-							}
-
-						}
-
+					if(!post) {
+						console.log(`!Twitter: no post`);
+						return;
 					}
 
-					return;
+					return;					
 
-				// IS NOT TWEET CHANNEL
+				} else {
+
+					console.log(`deleted: ${message.content}`);
+					if(message.deletable) await message.delete();
+
 				}
 
 			}
