@@ -84,7 +84,7 @@ module.exports = {
 						.catch(e=>{console.log(e)});
 
 					if(!post) {
-						console.log(`!Twitter: no post`);
+						console.log(`!Twitter: no post`);	
 						return;
 					}
 
