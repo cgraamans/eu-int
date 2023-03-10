@@ -1,7 +1,5 @@
 import chai from 'chai';
 import chaiHttp from 'chai-http';
-
-chai.use(chaiHttp);
 import 'mocha';
 
 chai.use(chaiHttp);
@@ -25,13 +23,3 @@ describe('API version ping request', () => {
       })
   })
 });
-
-// describe('API Register', () => {
-
-//   it('should return randomized user object on call', ()=>{
-
-
-
-//   });
-
-// });

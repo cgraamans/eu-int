@@ -3,21 +3,36 @@ import DB from "../services/db";
 const User = class User {
 
     public async allUser() {
-        return DB.q('SELECT * FROM User',[]).catch(e=>console.log(e));
+        return DB.q('SELECT * FROM users',[]).catch(e=>console.log(e));
     };
 
     public async getUserByEmail(email:string){
 
-        return await DB.q(`SELECT * FROM user WHERE email = ?`, [email]).catch(e=>console.log(e));
+        return await DB.q(`SELECT * FROM users WHERE email = ?`, [email]).catch(e=>console.log(e));
 
     }
 
-    public async insertUser(email:string,password:string) {
+    public async getUserByName(name:string){
 
-        const res = await DB.q(`INSERT INTO user (email, password) SET ?`,[{
-                email:email,
-                password:password,
-            }])
+        return await DB.q(`SELECT * FROM users WHERE username = ?`, [name]).catch(e=>console.log(e));
+
+    }
+
+    public async insertUser(username:string,password:string,email?:string) {
+
+        let emailInclInsert = "(username, password, secret)";
+        let emailIncData:{
+            username:string,password:string,email?:string
+        } = {
+            username:username,
+            password:password
+        };
+        if(email) {
+            emailInclInsert = "(username, password, email)";
+            emailIncData.email = email;
+        }
+
+        const res = await DB.q(`INSERT INTO users SET ?`,[emailIncData])
             .catch(e=>console.log(e));
 
         if (!res || !res.insertId || res.insertId < 1) return;

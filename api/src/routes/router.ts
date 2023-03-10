@@ -21,29 +21,50 @@ router.use(cookieParser());
 
 router.post('/register', async (req, res, next)=>{
     try{
-        const userName = req.body.userName;
-        const email = req.body.email;
+
+        const name = req.body.username;
+        const email = req.body.email?req.body.email:null;
         let password = req.body.password;
   
+        if (!name || !password) {
+            return res.sendStatus(400);
+        }
+
+        const isUser = await User.getUserByName(name);
+        if (isUser.length > 0) {
+            return res.json({
+                error: "Username taken"
+            });
+        }
+
+        if(name.length > 64) {
+            return res.json({
+                error: "Username too long"
+            });
+        }
+
+        if(!email.match(/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)) {
+            return res.json({
+                error: "Invalid Email"
+            });    
+        }
+
+        password = hashSync(password, genSaltSync(10));
+        const secret = hashSync(Math.random().toString(), genSaltSync(10));
   
-              if (!userName || !email || !password) {
-                return res.sendStatus(400);
-             }
-  
-             const salt = genSaltSync(10);
-             password = hashSync(password, salt);
-  
-               
-  
-        const user =  await User.insertUser(email, password);
-         
-        const jsontoken = jsonwebtoken.sign({user: user}, process.env.SECRET_KEY, { expiresIn: '30m'} );
+        const userIns =  await User.insertUser(name, password,email).catch(e=>console.log(e));
+        if(userIns.length < 0) res.sendStatus(400);
+
+        console.log(userIns);
+
+        const jsontoken = jsonwebtoken.sign({user: userIns[0]}, process.env.SECRET_KEY, { expiresIn: '30m'} );
+
+        console.log(jsontoken);
+
         res.cookie('token', jsontoken, { httpOnly: true, secure: true, expires: new Date(Number(new Date()) + 30*60*1000) }); //we add secure: true, when using https.
- 
- 
         res.json({token: jsontoken});
    
-             next();
+        next();
 
     } catch(e){    
         console.log(e);

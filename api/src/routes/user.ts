@@ -38,7 +38,7 @@ userRouter.post('/',  async (req, res, next)=>{
  
               
  
-        const user =  await User.insertUser(email, password);
+        const user =  await User.insertUser(userName,email, password);
         res.json({user: user});
             
  
