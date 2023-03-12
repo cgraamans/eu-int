@@ -1,10 +1,10 @@
 import * as express from 'express';
 import User from '../models/user';
 import DB from '../services/db';
+import { hashSync, genSaltSync, compareSync } from "bcrypt";
 
 const userRouter = express.Router();
  
-const { hashSync, genSaltSync, compareSync } = require("bcrypt");
  
 userRouter.param('userId', async (req:any, res, next, userId)=> {
     try{

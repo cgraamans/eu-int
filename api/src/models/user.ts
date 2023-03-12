@@ -41,6 +41,48 @@ const User = class User {
 
     }
 
+    public async insertUserToken(userId:number,token:string,dt:number) {
+
+        const res = await DB.q(`INSERT INTO user_tokens SET ?`,[{
+                user_id:userId,token:token,dt:dt
+            }])
+            .catch(e=>console.log(e));
+
+        if (!res || !res.insertId || res.insertId < 1) return;
+
+        return res.insertId;
+
+    }
+
+
+    public async insertUserRoles(userId:number,roles:string[]|string) {
+
+        if(typeof roles === 'string') roles = [roles];
+
+        await Promise.all(roles.map(async (role)=>{
+
+            // get role
+            const roleList = await DB.q(`SELECT * FROM roles WHERE name = ?`,[role]).catch(e=>{})
+            if(!roleList || roleList.length < 1) return;
+            const roleId = roleList[0].id;
+
+            //does the user have the role already?
+            // const hasRole = await DB.q(``)
+
+            // insert user_role
+            const res = await DB.q(`INSERT INTO user_role SET ?`,[{
+                user_id:userId,role_id:roleId
+            }])
+            .catch(e=>console.log(e));
+       
+        }));
+
+        // if (!res || !res.insertId || res.insertId < 1) return;
+
+        // return res.insertId;
+
+    }
+
     public async updateUser(name:string,email:string,password:string,nickname?:string){}
 
     public async deleteUser(email:string){}

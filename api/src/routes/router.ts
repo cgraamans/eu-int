@@ -1,14 +1,13 @@
 import express from 'express';
-import User from '../models/user';
-
 import jsonwebtoken from 'jsonwebtoken';
 import { hashSync, genSaltSync, compareSync } from "bcrypt";
 import cookieParser from 'cookie-parser';
 
-import userRouter from './user';
+import db from "../services/db";
 
-const router = express.Router();
-// const R = new router();
+import User from '../models/user';
+
+import userRouter from './user';
 
 /* 
 See: 
@@ -17,8 +16,12 @@ https://devdotcode.com/complete-jwt-authentication-and-authorization-system-for-
 
 */
 
+// INIT
+const router = express.Router();
+
 router.use(cookieParser());
 
+// REGISTER
 router.post('/register', async (req, res, next)=>{
     try{
 
@@ -26,43 +29,61 @@ router.post('/register', async (req, res, next)=>{
         const email = req.body.email?req.body.email:null;
         let password = req.body.password;
   
+        // VALIDATE
+
         if (!name || !password) {
-            return res.sendStatus(400);
+            return res.status(400).json({
+                error: "Name and password required"
+            });
         }
 
         const isUser = await User.getUserByName(name);
         if (isUser.length > 0) {
-            return res.json({
+            return res.status(400).json({
                 error: "Username taken"
             });
         }
 
         if(name.length > 64) {
-            return res.json({
+            return res.status(400).json({
                 error: "Username too long"
             });
         }
 
         if(!email.match(/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)) {
-            return res.json({
-                error: "Invalid Email"
+            return res.status(400).json({
+                error: "Invalid email"
             });    
         }
 
+        // PROCESS
+
+        // Create password and secret
         password = hashSync(password, genSaltSync(10));
         const secret = hashSync(Math.random().toString(), genSaltSync(10));
   
-        const userIns =  await User.insertUser(name, password,email).catch(e=>console.log(e));
-        if(userIns.length < 0) res.sendStatus(400);
+        // INS USER
+        const userId =  await User.insertUser(name, password,email).catch(e=>console.log(e));
+        if(!userId || userId < 1) res.status(400).json({
+            error: "BAD USER INSERT. CONTACT ADMINS."
+        });
 
-        console.log(userIns);
+        console.log(userId);
 
-        const jsontoken = jsonwebtoken.sign({user: userIns[0]}, process.env.SECRET_KEY, { expiresIn: '30m'} );
+        // INS JWT
+        const jsontoken = jsonwebtoken.sign({user: userId}, process.env.SECRET_KEY, { expiresIn: '30m'} );
 
-        console.log(jsontoken);
+        const isTokenStored = await User.insertUserToken(userId,jsontoken,new Date().getTime()).catch(e=>console.log(e));
+        if(!isTokenStored || isTokenStored < 1) res.status(400).json({
+            error: "BAD USER TOKEN INSERT. CONTACT ADMINS."
+        });
 
+        // INS ROLES
+        // const isUserRoleStored = await User.insertUserRole(userId,1).catch(e=>console.log(e));
+
+        // RESPONSE
         res.cookie('token', jsontoken, { httpOnly: true, secure: true, expires: new Date(Number(new Date()) + 30*60*1000) }); //we add secure: true, when using https.
-        res.json({token: jsontoken});
+        res.json({token: jsontoken,user:{name:name,roles:['User']}});
    
         next();
 
