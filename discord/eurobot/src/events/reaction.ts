@@ -1,4 +1,4 @@
-import {MessageReaction, Message, ReactionEmoji,User} from "discord.js";
+import {MessageReaction, Message, ReactionEmoji,User, TextChannel} from "discord.js";
 import discord from "../services/discord";
 // import TwitterModel from "../models/twitter";
 import db from "../services/db";
@@ -45,7 +45,7 @@ module.exports = {
                 console.log(`double!`,hasDoubles);
                 return;
             }
-            await articles.send(reaction.message.content);
+            await (articles as TextChannel).send(reaction.message.content);
             console.log('not double!');
 
         }

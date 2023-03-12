@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import { Collection, EmbedBuilder } from "discord.js";
+import { Collection, EmbedBuilder, TextChannel} from "discord.js";
 import {Eurobot} from "./types/index";
 
 import Discord from "./src/services/discord";
@@ -168,7 +168,7 @@ try {
                 const channel = guild.channels.cache.get(target.channel_id);
                 if(channel && channel.isTextBased()) {
 
-                    console.log(`channel name: ${channel.name}, timestamp: ${channel.lastMessage.createdTimestamp}`);
+                    console.log(`channel name: ${channel.name}, timestamp: ${(channel as TextChannel).lastMessage.createdTimestamp}`);
 
                     // if(channel.lastMessage.createdTimestamp)
 

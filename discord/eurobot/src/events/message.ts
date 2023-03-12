@@ -129,7 +129,7 @@ module.exports = {
 					if(Math.random() < 0.66) {
 						await message.reply(comment);
 					} else {
-						await message.channel.send(comment);
+						await (message.channel  as TextChannel).send(comment);
 					}
 
 				} else {
@@ -173,7 +173,7 @@ module.exports = {
 				if(message.author.id === discord.Client.user.id) return;
 
 				const emoji = message.guild.emojis.cache.random();
-				await message.channel.send(`SCHÖNER ${emoji}`);
+				await (message.channel as TextChannel).send(`SCHÖNER ${emoji}`);
 
 				return;
 
@@ -185,7 +185,7 @@ module.exports = {
 				if(message.author.id === discord.Client.user.id) return;
 
 				const emoji = message.guild.emojis.cache.random();
-				await message.channel.send(`TOCHTER ${emoji}`);
+				await (message.channel as TextChannel).send(`TOCHTER ${emoji}`);
 
 				return;
 
@@ -199,8 +199,8 @@ module.exports = {
 				const emoji = message.guild.emojis.cache.random();
 				const emoji2 = message.guild.emojis.cache.random();
 
-				await message.channel.send(`ELYSIUM ${emoji}`);
-				await message.channel.send(`${emoji2}`);
+				await (message.channel as TextChannel).send(`ELYSIUM ${emoji}`);
+				await (message.channel as TextChannel).send(`${emoji2}`);
 
 				return;
 
