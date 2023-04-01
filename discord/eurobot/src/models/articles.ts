@@ -153,12 +153,8 @@ export default class ArticleModel {
 
     public async masto(text:string) {
 
-        const mastoRtn = Mastodon.client.postStatus(text)
+        return Mastodon.client.postStatus(text,{})
             .catch((err:any)=>console.log(err));
-
-            console.log(JSON.stringify(mastoRtn));
-            
-            return mastoRtn;
 
     }
     //

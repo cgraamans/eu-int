@@ -21,19 +21,20 @@ module.exports = {
         if(!reaction.message.content.includes("https://")) return;
         if(reaction.message.channel.id === "609511947762925597") return;
         if(reaction.message.guildId !== "257838262943481857") return;
-        
+
         if(['loveEU'].includes(reaction.emoji.name)) {
 
-            console.log('LOVEEU REACTION!');
+            const member = reaction.message.guild.members.cache.get(user.id);
             
+            if(!member) return;
+            if(member.user.bot) return;
+
             const articles = reaction.message.guild.channels.cache.find(g=>g.id === "609511947762925597");
             if(!articles || !articles.isTextBased()) return;
 
-            const member = reaction.message.guild.members.cache.get(user.id);
-            if(!member) return;
             const hasRole = member.roles.cache.some(role => role.name === 'Admin' || role.name === 'Articles Contributor' || role.name === 'Twitter' || role.name === 'Moderator')
-
             console.log(`is authorized: ${hasRole}`);
+            if(!hasRole) return;
 
             const uri = reaction.message.content.match(/\bhttps?:\/\/\S+/gi);
             const url = uri[0];
