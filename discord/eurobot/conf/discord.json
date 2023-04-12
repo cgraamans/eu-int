@@ -60,6 +60,10 @@
       {
         "channel_id": "898725203805356093",
         "category": "Job-Calendar-EventCheck"
+      },
+      {
+        "channel_id": "609511947762925597",
+        "category": "Reddit-to-Articles"
       }
     ],
 

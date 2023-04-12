@@ -47,7 +47,6 @@ module.exports = {
                 return;
             }
             await (articles as TextChannel).send(reaction.message.content);
-            console.log('not double!');
 
         }
 

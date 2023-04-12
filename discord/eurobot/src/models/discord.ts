@@ -29,8 +29,8 @@ export default class DiscordModel {
 
     }
 
-    // push job outputs to discord
-    public async pushJobToDiscord(name:string,embed:EmbedBuilder){
+    // push embed job outputs to discord
+    public async pushEmbedToDiscord(name:string,embed:EmbedBuilder){
         
         const confChannels = discord.Config.Channels.filter(ch=>ch.category === name);
         if(confChannels.length < 1) return;
@@ -52,6 +52,33 @@ export default class DiscordModel {
         });
 
         return;
+
+    }
+
+    // push embed title/url combos to discord
+    public async pushTextToDiscord(name:string,text:string) {
+
+        const confChannels = discord.Config.Channels.filter(ch=>ch.category === name);
+        if(confChannels.length < 1) return;
+        
+        discord.Client.guilds.cache.forEach(guild => {
+
+            Tools.asyncForEach(confChannels,async (target:Eurobot.Channel) => {
+
+                const channel = guild.channels.cache.get(target.channel_id) as TextChannel;
+                if(channel) {
+                    await channel.send({content:text}).catch(e=>{console.log(e)});
+                }
+                return;
+
+            });
+
+            return;
+
+        });
+
+        return;
+
 
     }
 
