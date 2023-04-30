@@ -16,12 +16,7 @@ module.exports = {
 		if(discord.Config.Routes) {
 
 			let channelId:string;
-			if(message.webhookId) {
-				
-				channelId = message.channelId;
-				// console.log("WEBHOOK",message,"/WEBHOOK");
-				// console.log("CID",channelId,"/CID");
-			}
+			if(message.webhookId) channelId = message.channelId;
 			if(message.channel && message.channel.id) channelId = message.channel.id;
 
 			if(!channelId) return;
@@ -29,8 +24,6 @@ module.exports = {
 			
 			let routing = discord.Config.Routes.filter(route=>route.from === channelId)
 			if(routing.length > 0) {
-
-				console.log(`[ROUTING] from: ${message.channel.id}`)
 
 				const embed:EmbedBuilder | string = new EmbedBuilder()
 
@@ -51,7 +44,11 @@ module.exports = {
 				await Tools.asyncForEach(routing, async (route:Eurobot.Route)=>{
 					const channel = discord.Client.channels.cache.get(route.to) as TextChannel;
 					if(channel) await channel.send(routedMessage);
+
+					console.log(`< ROUTING [${message.channel.id}]`);
+
 					return;
+
 				});
 
 			}
@@ -76,26 +73,21 @@ module.exports = {
 						text:message.content
 					}]);
 
-					const hasRole = message.member.roles.cache.some(role => ['Admin','Moderator','Staff','Eurobot'].includes(role.name));
+					const hasRole = message.member.roles.cache.some(role => ['Admin','Moderator','Staff','Eurobot','Sponsor','Booster','Registered'].includes(role.name));
 					if(!hasRole) return;
 
 					const ModelArticle = new ArticleModel();
 					const post = await ModelArticle.post(message)
 						.catch(e=>{console.log(e)});
 
-					if(!post) {
-						console.log(`!Twitter: no post`);	
-						return;
-					}
-
-					return;					
-
 				} else {
 
-					console.log(`deleted: ${message.content}`);
+					console.log(`DELETE [${message.content} by ${message.author}]`);
 					if(message.deletable) await message.delete();
 
 				}
+
+				return;
 
 			}
 
@@ -205,18 +197,6 @@ module.exports = {
 				return;
 
 			}
-
-			// Varoufakis React
-			// if(message.content.toLowerCase().includes("varoufakis")) {
-
-			// 	if(message.author.id === discord.Client.user.id) return;
-
-			// 	const emoji = message.guild.emojis.cache.find(x=>x.name === "dijsselbloem");
-			// 	if(emoji) await message.reply(`${emoji}`);
-
-			// 	return;
-
-			// }			
 
 		}
 

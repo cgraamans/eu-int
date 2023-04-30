@@ -174,10 +174,12 @@ export default class ArticleModel {
         const post:{twitter:void|twitter.ResponseData,mastodon:any} = {twitter:undefined,mastodon:undefined};
 
         if(sanitizedTweet) {
-            post.twitter = await Twitter.post(sanitizedTweet,tweetMedia);
+            post.twitter = await Twitter.post(sanitizedTweet,tweetMedia).catch(e=>console.log(e));
+            console.log(`> Twitter [${sanitizedTweet}]`);
         }
         if(sanitizedMasto) {
-            post.mastodon = await this.masto(sanitizedMasto);
+            post.mastodon = await this.masto(sanitizedMasto).catch(e=>console.log(e));
+            console.log(`> MASTODON [${sanitizedMasto}]`);
         }
 
         return post;

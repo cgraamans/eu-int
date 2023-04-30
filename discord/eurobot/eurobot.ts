@@ -20,7 +20,7 @@ const calendarModel = new CalendarModel();
 const newsModel = new NewsModel();
 const discordModel = new DiscordModel();
 
-console.log(`APP Init [${new Date()}] @ ${__dirname}`);
+console.log(`APP [${new Date()}] @ ${__dirname}`);
 
 
 // SET COMMANDS
@@ -69,46 +69,6 @@ Discord.Client.on("interactionCreate", async (interaction)=>{
 
 try {
 
-    // // EVENT CHECK JOB
-    // jobs.push(schedule.scheduleJob(`*/3 * * * *`, async function(){
-
-    //     const calendar = await google.Calendar({from:new Date(new Date().getTime() - (3*60*1000)),to:new Date()});
-
-    //     if(calendar.length > 0) {
-
-    //         const embed = new EmbedBuilder()
-    //             .setTitle(`🇪🇺 Event Starting!`)
-    //             .setColor(0x001489);
-
-    //         Tools.asyncForEach(calendar,async (entry:any)=>{
-
-    //             if(!entry.start) return;
-    //             if(!entry.start.dateTime) return;
-    //             if(entry.status !== "confirmed") return;
-
-    //             const loggedID = await calendarModel.getLogID(entry.id);
-
-    //             if(loggedID) return; 
-
-    //             let description = "";
-    //             if(entry.description) description = `${entry.description}\n`;
-
-    //             embed.setDescription(`**${entry.summary}**\n${description}\nStarts: ${Tools.dateToHHss(new Date(entry.start.dateTime),false)} (NOW!), Ends: ${Tools.dateToHHss(new Date(entry.end.dateTime),false)}`)
-
-    //             await discordModel.pushJobToDiscord("Job-Calendar-EventCheck",embed);
-
-    //             await calendarModel.postLogID(entry.id);
-
-    //             return;
-
-    //         });
-
-    //     }
-
-    //     return;
-
-    // })); // EVENT CHECK JOB
-
     // CALENDAR JOB MORNING
     jobs.push(schedule.scheduleJob(`0 7 * * *`, async function(){
     
@@ -150,42 +110,6 @@ try {
 			.setColor(0x001489);  
     
         await discordModel.pushEmbedToDiscord("Job-Calendar",embed);
-
-        return;
-
-    }));
-
-    // Idlestop
-    jobs.push(schedule.scheduleJob(`*/5 * * * *`, async function(){
-
-
-        const confChannels = Discord.Config.Channels.filter(ch=>ch.category === "Idlestop");
-        if(confChannels.length < 1) return;
-        console.log('pip');
-
-        Discord.Client.guilds.cache.forEach(guild => {
-
-            Tools.asyncForEach(confChannels,async (target:Eurobot.Channel) => {
-
-                const channel = guild.channels.cache.get(target.channel_id);
-                if(channel && channel.isTextBased()) {
-
-                    console.log(`channel name: ${channel.name}, timestamp: ${(channel as TextChannel).lastMessage.createdTimestamp}`);
-
-                    // if(channel.lastMessage.createdTimestamp)
-
-                    
-
-                    // logic for checking if channel has been idle
-
-                }
-                return;
-
-            });
-
-            return;
-
-        });
 
         return;
 
@@ -246,21 +170,22 @@ try {
                 if(item.url.startsWith("https://v.redd.it")) return;
 
                 let url = item.url;
-                if(url.includes("?")) {
-                    const uri = item.url.split("?");
-                    url = uri[0];
-                }
-
                 const hasDoubles = await db.q(`
-                    SELECT * FROM log_articles WHERE text REGEXP '${url}'
-                `).catch(e=>console.log(e));
+                    SELECT * FROM log_articles WHERE text = ? OR text LIKE ? OR text LIKE ? OR text LIKE ?
+                    `,[
+                        item.url,
+                        item.url+"%",
+                        "%"+item.url,
+                        "%"+item.url+"%"
+                    ])
+                    .catch(e=>console.log(e));
     
                 if(hasDoubles.length > 0) return;
 
-                console.log(`< REDDIT ${item.url}`);
+                console.log(`< REDDIT [${item.url}]`);
 
                 // post to articles
-                await discordModel.pushTextToDiscord("Reddit-to-Articles",`Source: /r/${newsObj.keyword}\n${url}`);
+                await discordModel.pushTextToDiscord("Reddit-to-Articles",`Source: /r/${newsObj.keyword}\n`+url);
 
             }));
 
