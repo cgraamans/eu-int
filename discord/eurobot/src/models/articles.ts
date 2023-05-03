@@ -7,6 +7,8 @@ import * as https from "https";
 import Twitter from "../services/twitter";
 import twitter from "twitter";
 
+import Telegram from "../services/telegram";
+
 import Mastodon from "../services/mastodon";
 
 import Tools from '../tools';
@@ -157,6 +159,7 @@ export default class ArticleModel {
             .catch((err:any)=>console.log(err));
 
     }
+
     //
     // POST ARTICLE TO SOCIAL MEDIA
     //
@@ -171,16 +174,19 @@ export default class ArticleModel {
         const sanitizedTweet = this.sanitizeTweet(message);
         const sanitizedMasto = this.sanitizeMasto(message);
 
-        const post:{twitter:void|twitter.ResponseData,mastodon:any} = {twitter:undefined,mastodon:undefined};
+        const post:{twitter:void|twitter.ResponseData,mastodon:any,telegram:any} = {twitter:undefined,mastodon:undefined,telegram:undefined};
 
         if(sanitizedTweet) {
             post.twitter = await Twitter.post(sanitizedTweet,tweetMedia).catch(e=>console.log(e));
-            console.log(`> Twitter [${sanitizedTweet}]`);
         }
         if(sanitizedMasto) {
             post.mastodon = await this.masto(sanitizedMasto).catch(e=>console.log(e));
-            console.log(`> MASTODON [${sanitizedMasto}]`);
         }
+        if(sanitizedMasto){
+            post.telegram = await Telegram.client.sendMessage("@euintnews",sanitizedTweet).catch(e=>console.log(e));
+        }
+
+        console.log("> BROADCAST",post);
 
         return post;
 
