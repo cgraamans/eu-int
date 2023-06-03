@@ -13,11 +13,11 @@ import google from "./src/services/google";
 import Tools from './src/tools';
 
 import * as schedule from "node-schedule";
+import DB from '../../workers/src/lib/services/db';
 
 let jobs:schedule.Job[] = [];
 
 const calendarModel = new CalendarModel();
-const newsModel = new NewsModel();
 const discordModel = new DiscordModel();
 
 console.log(`APP [${new Date()}] @ ${__dirname}`);
@@ -117,6 +117,8 @@ try {
 
     // News JOB
     jobs.push(schedule.scheduleJob(`0 */4 * * *`, async function(){
+        
+        const newsModel = new NewsModel(3);
 
         let newsObj:Eurobot.News.Obj = {keyword:"eunews"};
 
@@ -148,12 +150,16 @@ try {
     }));
 
     // News to articles job
-    jobs.push(schedule.scheduleJob(`*/4 * * * *`, async function(){
+    jobs.push(schedule.scheduleJob(`*/2 * * * *`, async function(){
+
+        const newsModel = new NewsModel(10);
 
         let newsObj:Eurobot.News.Obj = {keyword:"eunews"};
         const subreddits = ['EUNews','EuropeanArmy','EuropeanUnion','EUSpace','EUTech'];
+
         newsObj.keyword = subreddits[Math.floor(Math.random()*subreddits.length)];
-		
+		console.log(`JOB ARTICLES: ${newsObj.keyword}`);
+        
         // get news
 		newsObj = await newsModel.get(newsObj);
         if(!newsObj) return;
@@ -169,7 +175,9 @@ try {
                 if(item.url.endsWith(".png")) return;
                 if(item.url.startsWith("https://v.redd.it")) return;
 
-                let url = item.url;
+                const hasWhitelist = await db.q(`SELECT * from reddit_whitelist WHERE name = ?`,[item.author.name]);
+                if(hasWhitelist.length < 1) return;
+
                 const hasDoubles = await db.q(`
                     SELECT * FROM log_articles WHERE text = ? OR text LIKE ? OR text LIKE ? OR text LIKE ?
                     `,[
@@ -185,7 +193,7 @@ try {
                 console.log(`< REDDIT [${item.url}]`);
 
                 // post to articles
-                await discordModel.pushTextToDiscord("Reddit-to-Articles",`Source: /r/${newsObj.keyword}\n`+url);
+                await discordModel.pushTextToDiscord("Reddit-to-Articles",`Source: /r/${newsObj.keyword}\n`+item.url);
 
             }));
 

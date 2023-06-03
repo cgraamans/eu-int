@@ -50,8 +50,10 @@ module.exports = {
                 .catch(e=>console.log(e));
 
             if(hasDoubles.length > 0) return;
-            
-            await (articles as TextChannel).send(reaction.message.content);
+
+            const channel = reaction.message.guild.channels.cache.find(g=>g.id === reaction.message.channel.id);
+
+            await (articles as TextChannel).send(`Source: Forum Gotterfunken Discord\n\#${channel.name}\n${reaction.message.content}`);
 
         }
 

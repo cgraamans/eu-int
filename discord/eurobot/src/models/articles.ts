@@ -186,7 +186,7 @@ export default class ArticleModel {
             post.telegram = await Telegram.client.sendMessage("@euintnews",sanitizedTweet).catch(e=>console.log(e));
         }
 
-        console.log("> BROADCAST",post);
+        // console.log("> BROADCAST",post);
 
         return post;
 

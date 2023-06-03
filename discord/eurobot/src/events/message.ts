@@ -73,7 +73,7 @@ module.exports = {
 						text:message.content
 					}]);
 
-					const hasRole = message.member.roles.cache.some(role => ['Admin','Moderator','Staff','Eurobot','Sponsor','Booster','Registered'].includes(role.name));
+					const hasRole = message.member.roles.cache.some(role => ['Admin','Moderator','Staff','Eurobot','Sponsor','Booster'].includes(role.name));
 					if(!hasRole) return;
 
 					const ModelArticle = new ArticleModel();
